@@ -1,0 +1,62 @@
+name: Daily Java Interview Tip Automation
+
+on:
+  schedule:
+    # 4:30 AM UTC matches 10:00 AM IST (UTC + 5:30)
+    - cron: '30 4 * * *'
+  workflow_dispatch: # Allows you to manually trigger it from the GitHub website for testing
+
+jobs:
+  run-daily-tip:
+    runs-on: ubuntu-latest
+    
+    # Grant permissions to write changes back to the repository (needed to save the SQLite database state)
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Build Shaded JAR with Maven
+        run: mvn clean package
+
+      - name: Run Tip Generator (Dry Run Mode)
+        env:
+          # Bind configurations securely from GitHub Secrets to the environment
+          LLM_API_URL: ${{ secrets.LLM_API_URL }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          LLM_API_MODEL: ${{ secrets.LLM_API_MODEL }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_AUTH: ${{ secrets.SMTP_AUTH }}
+          SMTP_STARTTLS: ${{ secrets.SMTP_STARTTLS }}
+          SMTP_USERNAME: ${{ secrets.SMTP_USERNAME }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          SMTP_FROM: ${{ secrets.SMTP_FROM }}
+          SMTP_TO: ${{ secrets.SMTP_TO }}
+          DB_URL: jdbc:sqlite:java_tips.db
+          SCHEDULE_TIME: "10:00"
+          SCHEDULE_TIMEZONE: "Asia/Kolkata"
+        run: java -jar target/java-interview-tips-1.0-SNAPSHOT.jar --dry-run
+
+      - name: Commit and Save Database State
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add java_tips.db || true
+          
+          # Commit the updated SQLite database only if a new tip was sent and marked in the DB
+          if ! git diff --quiet || ! git diff --cached --quiet; then
+            git commit -m "Update sent tips database history [skip ci]"
+            git push
+          else
+            echo "No changes in database. Skipping commit."
+          fi

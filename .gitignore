@@ -1,0 +1,17 @@
+# Build output
+target/
+
+# IDE configurations
+.idea/
+*.iml
+.settings/
+.classpath
+.project
+.vscode/
+
+# Local sensitive configuration file
+config.properties
+
+# Logs
+logs/
+*.log

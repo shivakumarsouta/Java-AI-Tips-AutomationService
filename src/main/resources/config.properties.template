@@ -1,0 +1,42 @@
+# ==========================================
+# AI-Powered Daily Java Interview Tip Service
+# Configuration Properties
+# ==========================================
+
+# --- LLM API Configuration ---
+# The URL for the OpenAI-compatible API endpoint (e.g. OpenAI, Groq, local LM Studio, etc.)
+llm.api.url=https://api.openai.com/v1/chat/completions
+# The API authorization key
+llm.api.key=your-api-key-here
+# The LLM model identifier
+llm.api.model=gpt-4o-mini
+# Request timeout in seconds
+llm.api.timeout=30
+
+# --- SMTP Configuration ---
+# SMTP server hostname (e.g., smtp.gmail.com, smtp.mailgun.org)
+smtp.host=smtp.gmail.com
+# SMTP port (587 for STARTTLS, 465 for SSL/TLS)
+smtp.port=587
+# Enable SMTP authentication (true/false)
+smtp.auth=true
+# Enable STARTTLS (true/false)
+smtp.starttls=true
+# SMTP account username (often your email address)
+smtp.username=your-sender-email@gmail.com
+# SMTP password or application password
+smtp.password=your-email-app-password
+# The address that emails are sent from
+smtp.from=your-sender-email@gmail.com
+# The address that receives the daily interview tips
+smtp.to=your-recipient-email@gmail.com
+
+# --- Execution Schedule ---
+# The time of day to trigger the daily tip, format: HH:mm (24-hour)
+schedule.time=08:00
+# Timezone identifier (e.g. UTC, EST, Asia/Kolkata, or GMT+5:30)
+schedule.timezone=UTC
+
+# --- Database State Tracking ---
+# SQLite Connection URL. Relative or absolute path to database file.
+db.url=jdbc:sqlite:java_tips.db
