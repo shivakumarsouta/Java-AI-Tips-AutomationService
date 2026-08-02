@@ -9,8 +9,8 @@ on:
 jobs:
   run-daily-tip:
     runs-on: ubuntu-latest
-    
-    # Grant permissions to write changes back to the repository (needed to save the SQLite database state)
+
+    # Grant permissions to write changes back to the repository
     permissions:
       contents: write
 
@@ -28,7 +28,7 @@ jobs:
       - name: Build Shaded JAR with Maven
         run: mvn clean package
 
-      - name: Run Tip Generator (Dry Run Mode)
+      - name: Run Tip Generator
         env:
           # Bind configurations securely from GitHub Secrets to the environment
           LLM_API_URL: ${{ secrets.LLM_API_URL }}
@@ -47,16 +47,19 @@ jobs:
           SCHEDULE_TIMEZONE: "Asia/Kolkata"
         run: java -jar target/java-interview-tips-1.0-SNAPSHOT.jar --dry-run
 
-      - name: Commit and Save Database State
+      - name: Commit Database State and Archive Website
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Stage both the updated SQLite database and the regenerated archive website
           git add java_tips.db || true
-          
-          # Commit the updated SQLite database only if a new tip was sent and marked in the DB
-          if ! git diff --quiet || ! git diff --cached --quiet; then
-            git commit -m "Update sent tips database history [skip ci]"
+          git add docs/index.html || true
+
+          # Commit only if there are actual staged changes
+          if ! git diff --cached --quiet; then
+            git commit -m "Daily tip delivered — archive updated [skip ci]"
             git push
           else
-            echo "No changes in database. Skipping commit."
+            echo "No changes detected. Skipping commit."
           fi
