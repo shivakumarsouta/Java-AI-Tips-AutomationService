@@ -3,79 +3,255 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Daily AI-generated Java interview tips — an automated archive for developers.">
-    <title>Daily Java Interview Tips — Archive</title>
+    <title>Java AI Daily Tips - Archive & Portfolio</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        body {
-            background: #0f0f1a;
-            color: #e2e8f0;
-            font-family: 'Inter', system-ui, sans-serif;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            text-align: center;
-            padding: 24px;
+        :root {
+            --bg-main: #090d16;
+            --bg-card: #111827;
+            --bg-card-hover: #1f2937;
+            --border-color: #1f2937;
+            --accent-color: #6366f1;
+            --accent-hover: #4f46e5;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --text-bright: #ffffff;
         }
-        .card {
-            max-width: 480px;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.6;
+            padding-bottom: 60px;
+        }
+        .header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            padding: 60px 20px;
+            text-align: center;
+            border-bottom: 1px solid #3730a3;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-bright);
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+        }
+        .header p {
+            font-size: 1.1rem;
+            color: #c7d2fe;
+            max-width: 650px;
+            margin: 0 auto 20px auto;
+        }
+        .github-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 10px 20px;
+            border-radius: 9999px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.2s ease;
+        }
+        .github-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        .container {
+            max-width: 850px;
+            margin: 40px auto 0 auto;
+            padding: 0 20px;
+        }
+        .controls {
+            margin-bottom: 24px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 14px 20px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+        .search-input:focus {
+            border-color: var(--accent-color);
+        }
+        .tip-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            margin-bottom: 18px;
+            overflow: hidden;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .tip-card:hover {
+            border-color: #374151;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        .card-header {
+            padding: 20px 24px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-bright);
+            margin: 6px 0 4px 0;
+        }
+        .card-meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
         }
         .badge {
             display: inline-block;
-            background: rgba(129,140,248,0.15);
-            border: 1px solid rgba(129,140,248,0.3);
-            color: #818cf8;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.15em;
+            padding: 3px 10px;
+            background-color: #1f2937;
+            color: #9ca3af;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
             text-transform: uppercase;
-            padding: 6px 14px;
-            border-radius: 100px;
-            margin-bottom: 24px;
         }
-        h1 {
-            font-size: 36px;
-            font-weight: 800;
-            letter-spacing: -0.03em;
-            color: #fff;
-            margin-bottom: 16px;
+        .badge-latest {
+            background-color: #312e81;
+            color: #a5b4fc;
+            border: 1px solid #4338ca;
         }
-        h1 span {
-            background: linear-gradient(90deg, #818cf8, #c084fc);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+        .chevron {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            transition: transform 0.3s ease;
         }
-        p {
-            color: #94a3b8;
-            font-size: 15px;
-            line-height: 1.7;
-            margin-bottom: 12px;
+        .tip-card.active .chevron {
+            transform: rotate(180deg);
         }
-        .clock {
-            font-size: 48px;
-            margin: 20px 0;
+        .card-body {
+            display: none;
+            padding: 0 24px 24px 24px;
+            border-top: 1px solid #1f2937;
+            margin-top: 4px;
+            padding-top: 20px;
+            color: #d1d5db;
         }
-        footer {
-            margin-top: 32px;
-            font-size: 12px;
-            color: #475569;
+        .tip-card.active .card-body {
+            display: block;
+        }
+        pre {
+            background-color: #030712 !important;
+            border: 1px solid #1f2937 !important;
+            border-radius: 8px;
+            padding: 16px;
+            overflow-x: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            margin: 16px 0;
+        }
+        ul, ol { padding-left: 20px; margin-bottom: 16px; }
+        li { margin-bottom: 6px; }
+        p { margin-bottom: 14px; }
+        strong { color: #f9fafb; }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background-color: var(--bg-card);
+            border-radius: 14px;
+            border: 1px solid var(--border-color);
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: var(--text-muted);
+            font-size: 0.875rem;
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div class="badge">Coming Soon</div>
-        <h1>Java Interview <span>Tips Archive</span></h1>
-        <div class="clock">☕</div>
-        <p>This page will automatically update every morning at <strong style="color:#e2e8f0">10:00 AM IST</strong> with a new AI-generated Java interview tip.</p>
-        <p>The first tip will appear here after the next scheduled run on GitHub Actions.</p>
-        <footer>
-            Built with Java 17 · Groq API · GitHub Actions · SQLite
-        </footer>
+    <header class="header">
+        <h1>Java AI Daily Interview Tips</h1>
+        <p>Automated background service generating daily Java interview tips powered by Groq LLM and GitHub Actions.</p>
+        <a href="https://github.com/shivakumarsouta/Java-AI-Tips-AutomationService" target="_blank" class="github-btn">
+            <svg height="18" width="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            View Source Code on GitHub
+        </a>
+    </header>
+
+    <main class="container">
+        <div class="controls">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search Java interview tips (e.g. Garbage Collector, Streams, Virtual Threads)..." onkeyup="filterTips()">
+        </div>
+
+        <div id="tipsList">
+            <div class="tip-card" data-title="Title B" data-concept="Concept B">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <span class="badge badge-latest">Latest Issue</span>
+            <h2 class="card-title">Title B</h2>
+            <span class="card-meta">Sent on 2026-08-09 06:57:28 • Topic: Concept B</span>
+        </div>
+        <span class="chevron">▼</span>
     </div>
+    <div class="card-body">
+        <p>Content B</p>
+    </div>
+</div>
+<div class="tip-card" data-title="Title A" data-concept="Concept A">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <span class="badge">Tip #1</span>
+            <h2 class="card-title">Title A</h2>
+            <span class="card-meta">Sent on 2026-08-09 06:57:28 • Topic: Concept A</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+        <p>Content A</p>
+    </div>
+</div>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Powered by Java 17 • Groq LLM API • SQLite • GitHub Actions</p>
+    </footer>
+
+    <script>
+        function toggleCard(headerElem) {
+            const card = headerElem.parentElement;
+            card.classList.toggle('active');
+        }
+        function filterTips() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.tip-card');
+            cards.forEach(card => {
+                const title = card.getAttribute('data-title').toLowerCase();
+                const concept = card.getAttribute('data-concept').toLowerCase();
+                if (title.includes(query) || concept.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        // Auto expand the latest tip
+        document.addEventListener('DOMContentLoaded', () => {
+            const firstCard = document.querySelector('.tip-card');
+            if (firstCard) firstCard.classList.add('active');
+        });
+    </script>
 </body>
 </html>

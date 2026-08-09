@@ -21,8 +21,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * Orchestrates the full daily cycle: concept selection, LLM generation (with fallback),
- * email delivery, state persistence, and archive website generation.
+ * Orchestrates the full daily cycle: loading concepts, picking next unused, generating via LLM
+ * (with fallback resilience), emailing, persisting tracking state, and updating the HTML website archive.
  */
 public class TipGeneratorService {
     private static final Logger logger = LoggerFactory.getLogger(TipGeneratorService.class);
@@ -30,14 +30,14 @@ public class TipGeneratorService {
     private final DatabaseManager dbManager;
     private final LlmClient llmClient;
     private final EmailSender emailSender;
-    private final FallbackTipProvider fallbackProvider;
+    private final FallbackTipProvider fallbackTipProvider;
     private final ArchiveGenerator archiveGenerator;
 
     public TipGeneratorService(DatabaseManager dbManager, LlmClient llmClient, EmailSender emailSender) {
         this.dbManager = dbManager;
         this.llmClient = llmClient;
         this.emailSender = emailSender;
-        this.fallbackProvider = new FallbackTipProvider();
+        this.fallbackTipProvider = new FallbackTipProvider();
         this.archiveGenerator = new ArchiveGenerator(dbManager);
     }
 
@@ -64,32 +64,39 @@ public class TipGeneratorService {
                     .filter(concept -> !sentConcepts.contains(concept))
                     .collect(Collectors.toList());
 
-            // 4. Exhaustion check: reset if all concepts have been used
+            // 4. Exhaustion check: if all concepts have been used, reset database tracking
             if (unusedConcepts.isEmpty()) {
                 logger.warn("All seed concepts have been exhausted! Resetting database history to start over.");
                 dbManager.clearHistory();
                 unusedConcepts = new ArrayList<>(allConcepts);
             }
 
-            logger.info("{} unused concepts available for selection.", unusedConcepts.size());
+            logger.info("{} unused concepts are available for selection.", unusedConcepts.size());
 
             // 5. Select the first unused concept sequentially
             String selectedConcept = unusedConcepts.get(0);
             logger.info("Selected concept: '{}'", selectedConcept);
 
-            // 6. Generate tip — with fallback resiliency if LLM fails
-            LlmClient.GeneratedTip tip = generateWithFallback(selectedConcept);
-            logger.info("Tip ready: '{}'", tip.title);
+            // 6. Request the LLM to generate the tip details (with fallback resilience)
+            LlmClient.GeneratedTip tip;
+            try {
+                tip = llmClient.generateTip(selectedConcept);
+                logger.info("Successfully generated tip content via LLM API for: '{}' (Title: '{}')", selectedConcept, tip.title);
+            } catch (Exception e) {
+                logger.warn("LLM API call failed for '{}'. Activating FallbackTipProvider circuit breaker resilience.", selectedConcept, e);
+                tip = fallbackTipProvider.getFallbackTip(selectedConcept);
+            }
 
             // 7. Send the styled email
             emailSender.sendTipEmail(tip.title, tip.summary, tip.detailedHtml);
 
-            // 8. Record the sent tip in the database
+            // 8. Log the successfully sent tip in the database
             dbManager.recordSentTip(selectedConcept, tip.title, tip.detailedHtml);
-            logger.info("Daily Java interview tip execution completed successfully.");
 
-            // 9. Regenerate the archive website with the updated database
+            // 9. Rebuild and publish the HTML website archive
             archiveGenerator.generateArchive();
+            
+            logger.info("Daily Java interview tip execution completed successfully.");
 
         } catch (Exception e) {
             logger.error("Critical failure during daily Java interview tip execution task", e);
@@ -97,33 +104,11 @@ public class TipGeneratorService {
     }
 
     /**
-     * Attempts LLM generation first. If it fails after all retries, uses a pre-written fallback tip.
-     * This is the Circuit Breaker pattern — the service always delivers something.
-     */
-    private LlmClient.GeneratedTip generateWithFallback(String concept) {
-        if (llmClient == null) {
-            logger.warn("LLM client is not configured. Using fallback tip directly.");
-            return fallbackProvider.getNextFallbackTip();
-        }
-        try {
-            return llmClient.generateTip(concept);
-        } catch (Exception e) {
-            logger.error("LLM generation failed for concept '{}' after all retries. Activating fallback.", concept, e);
-            if (fallbackProvider.hasFallbackTips()) {
-                logger.info("Circuit breaker activated: serving pre-written fallback tip.");
-                return fallbackProvider.getNextFallbackTip();
-            }
-            throw new RuntimeException("LLM failed and no fallback tips are available.", e);
-        }
-    }
-
-    /**
-     * Loads seed concepts from a local seed_concepts.txt file first,
-     * falling back to the classpath resource if not found.
+     * Loads the list of topics from a local seed_concepts.txt file first, and falls back to classpath resource if not found.
      */
     public List<String> loadSeedConcepts() {
         List<String> concepts = new ArrayList<>();
-
+        
         // 1. Check local filesystem path first
         Path localFile = Paths.get("seed_concepts.txt");
         if (Files.exists(localFile)) {
@@ -135,7 +120,7 @@ public class TipGeneratorService {
             }
         }
 
-        // 2. Fall back to embedded classpath resource
+        // 2. Fall back to embedded classpath resource if local is empty or non-existent
         if (concepts.isEmpty()) {
             logger.debug("Local seed_concepts.txt empty/not found. Checking classpath resource.");
             try (InputStream input = getClass().getClassLoader().getResourceAsStream("seed_concepts.txt")) {

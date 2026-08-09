@@ -9,9 +9,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
@@ -88,6 +88,31 @@ public class DatabaseManager implements AutoCloseable {
         return sent;
     }
 
+    public record SentTipRecord(int id, String concept, String sentAt, String title, String content) {}
+
+    /**
+     * Retrieves all sent tip records ordered by ID descending (newest first).
+     */
+    public List<SentTipRecord> getAllSentTipRecords() {
+        List<SentTipRecord> list = new ArrayList<>();
+        String sql = "SELECT id, concept, sent_at, title, content FROM sent_tips ORDER BY id DESC";
+        try (Statement stmt = getConnection().createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                list.add(new SentTipRecord(
+                        rs.getInt("id"),
+                        rs.getString("concept"),
+                        rs.getString("sent_at"),
+                        rs.getString("title"),
+                        rs.getString("content")
+                ));
+            }
+        } catch (SQLException e) {
+            logger.error("Error retrieving sent tip records", e);
+        }
+        return list;
+    }
+
     /**
      * Records a sent tip.
      */
@@ -103,36 +128,6 @@ public class DatabaseManager implements AutoCloseable {
             logger.error("Error saving sent tip record for concept: {}", concept, e);
             throw new RuntimeException("Database save failed", e);
         }
-    }
-
-    /**
-     * Retrieves all sent tips ordered by sent time, for use by the archive generator.
-     */
-    public List<SentTipRecord> getAllSentTips() {
-        List<SentTipRecord> tips = new ArrayList<>();
-        String sql = "SELECT concept, title, content, sent_at FROM sent_tips ORDER BY sent_at ASC";
-        try (Statement stmt = getConnection().createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                SentTipRecord record = new SentTipRecord();
-                record.concept = rs.getString("concept");
-                record.title   = rs.getString("title");
-                record.content = rs.getString("content");
-                record.sentAt  = rs.getString("sent_at");
-                tips.add(record);
-            }
-        } catch (SQLException e) {
-            logger.error("Error retrieving all sent tips for archive generation", e);
-        }
-        return tips;
-    }
-
-    /** Simple data holder for a sent tip record read from SQLite. */
-    public static class SentTipRecord {
-        public String concept;
-        public String title;
-        public String content;
-        public String sentAt;
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.aitips.service;
 
 import com.aitips.db.DatabaseManager;
+import com.aitips.db.DatabaseManager.SentTipRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,17 +10,14 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
- * Generates a static HTML archive website from all previously sent tips stored in SQLite.
- * The output is written to docs/index.html for GitHub Pages deployment.
+ * Generates a modern, static HTML5 archive application at docs/index.html for deployment to GitHub Pages.
  */
 public class ArchiveGenerator {
     private static final Logger logger = LoggerFactory.getLogger(ArchiveGenerator.class);
-    private static final String OUTPUT_PATH = "docs/index.html";
+
     private final DatabaseManager dbManager;
 
     public ArchiveGenerator(DatabaseManager dbManager) {
@@ -27,291 +25,314 @@ public class ArchiveGenerator {
     }
 
     /**
-     * Queries all sent tips from the database and generates a static docs/index.html website.
+     * Rebuilds docs/index.html with all sent tips retrieved from the SQLite database.
      */
     public void generateArchive() {
-        logger.info("Generating tip archive website...");
+        logger.info("Generating GitHub Pages newsletter archive website at docs/index.html...");
         try {
-            List<DatabaseManager.SentTipRecord> tips = dbManager.getAllSentTips();
-            if (tips.isEmpty()) {
-                logger.warn("No sent tips found in database. Skipping archive generation.");
-                return;
+            List<SentTipRecord> records = dbManager.getAllSentTipRecords();
+            String htmlContent = buildArchiveHtml(records);
+
+            Path docsDir = Paths.get("docs");
+            if (!Files.exists(docsDir)) {
+                Files.createDirectories(docsDir);
             }
 
-            String html = buildArchivePage(tips);
-            Path outputPath = Paths.get(OUTPUT_PATH);
-            Files.createDirectories(outputPath.getParent());
-            Files.writeString(outputPath, html, StandardCharsets.UTF_8);
-            logger.info("Archive website generated successfully at '{}'. Total tips: {}", OUTPUT_PATH, tips.size());
+            Path indexPath = docsDir.resolve("index.html");
+            Files.writeString(indexPath, htmlContent, StandardCharsets.UTF_8);
+            logger.info("Successfully generated GitHub Pages archive website with {} tips.", records.size());
+
         } catch (IOException e) {
-            logger.error("Failed to write archive HTML file to '{}'", OUTPUT_PATH, e);
+            logger.error("Failed to write docs/index.html archive file", e);
         }
     }
 
-    private String buildArchivePage(List<DatabaseManager.SentTipRecord> tips) {
-        StringBuilder cards = new StringBuilder();
-        // Render in reverse order so the newest tip appears first
-        for (int i = tips.size() - 1; i >= 0; i--) {
-            DatabaseManager.SentTipRecord tip = tips.get(i);
-            String processedHtml = styleCodeBlocksForWeb(tip.content);
-            String safeTitle = escapeHtml(tip.title != null ? tip.title : tip.concept);
-            String sentDate = tip.sentAt != null ? tip.sentAt.substring(0, 10) : "Unknown Date";
+    private String buildArchiveHtml(List<SentTipRecord> records) {
+        StringBuilder cardsHtml = new StringBuilder();
 
-            cards.append("""
-                <article class="tip-card" id="tip-%d">
-                    <div class="tip-card-header">
-                        <div>
-                            <span class="tip-number">Tip #%d</span>
-                            <h2 class="tip-title">%s</h2>
+        if (records.isEmpty()) {
+            cardsHtml.append("""
+                <div class="empty-state">
+                    <h3>No Tips Archived Yet</h3>
+                    <p>The daily tip automation service is initializing. Check back tomorrow at 10:00 AM IST!</p>
+                </div>
+                """);
+        } else {
+            for (int i = 0; i < records.size(); i++) {
+                SentTipRecord rec = records.get(i);
+                String badge = (i == 0) ? "<span class=\"badge badge-latest\">Latest Issue</span>" : "<span class=\"badge\">Tip #" + rec.id() + "</span>";
+                
+                cardsHtml.append(String.format("""
+                    <div class="tip-card" data-title="%s" data-concept="%s">
+                        <div class="card-header" onclick="toggleCard(this)">
+                            <div>
+                                %s
+                                <h2 class="card-title">%s</h2>
+                                <span class="card-meta">Sent on %s • Topic: %s</span>
+                            </div>
+                            <span class="chevron">▼</span>
                         </div>
-                        <span class="tip-date">%s</span>
+                        <div class="card-body">
+                            %s
+                        </div>
                     </div>
-                    <div class="tip-body">
-                        %s
-                    </div>
-                </article>
-                """.formatted(i + 1, i + 1, safeTitle, sentDate, processedHtml));
+                    """,
+                    escapeAttr(rec.title()),
+                    escapeAttr(rec.concept()),
+                    badge,
+                    escapeHtml(rec.title()),
+                    escapeHtml(rec.sentAt()),
+                    escapeHtml(rec.concept()),
+                    rec.content()
+                ));
+            }
         }
 
-        String lastUpdated = LocalDateTime.now().format(DateTimeFormatter.ofPattern("d MMM yyyy, hh:mm a"));
-        return """
+        String template = """
             <!DOCTYPE html>
             <html lang="en">
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <meta name="description" content="A daily archive of AI-generated Java interview tips covering JVM internals, concurrency, design patterns, and modern Java features.">
-                <title>Daily Java Interview Tips — Archive</title>
+                <title>Java AI Daily Tips - Archive & Portfolio</title>
                 <link rel="preconnect" href="https://fonts.googleapis.com">
-                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
                 <style>
-                    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
                     :root {
-                        --bg: #0f0f1a;
-                        --surface: #1a1a2e;
-                        --surface2: #16213e;
-                        --border: #2a2a4a;
-                        --accent: #818cf8;
-                        --accent2: #c084fc;
-                        --text: #e2e8f0;
-                        --text-muted: #94a3b8;
-                        --code-bg: #0d1117;
-                        --radius: 12px;
+                        --bg-main: #090d16;
+                        --bg-card: #111827;
+                        --bg-card-hover: #1f2937;
+                        --border-color: #1f2937;
+                        --accent-color: #6366f1;
+                        --accent-hover: #4f46e5;
+                        --text-main: #f3f4f6;
+                        --text-muted: #9ca3af;
+                        --text-bright: #ffffff;
                     }
+                    * { box-sizing: border-box; margin: 0; padding: 0; }
                     body {
-                        background: var(--bg);
-                        color: var(--text);
-                        font-family: 'Inter', system-ui, sans-serif;
-                        font-size: 15px;
-                        line-height: 1.7;
-                        min-height: 100vh;
+                        background-color: var(--bg-main);
+                        color: var(--text-main);
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                        line-height: 1.6;
+                        padding-bottom: 60px;
                     }
-
-                    /* Hero Header */
-                    .hero {
-                        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
-                        padding: 80px 24px 60px;
+                    .header {
+                        background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+                        padding: 60px 20px;
                         text-align: center;
-                        border-bottom: 1px solid var(--border);
-                        position: relative;
-                        overflow: hidden;
+                        border-bottom: 1px solid #3730a3;
                     }
-                    .hero::before {
-                        content: '';
-                        position: absolute; inset: 0;
-                        background: radial-gradient(ellipse at 50% 0%, rgba(129,140,248,0.15) 0%, transparent 70%);
-                    }
-                    .hero-badge {
-                        display: inline-block;
-                        background: rgba(129,140,248,0.15);
-                        border: 1px solid rgba(129,140,248,0.3);
-                        color: var(--accent);
-                        font-size: 11px;
-                        font-weight: 700;
-                        letter-spacing: 0.15em;
-                        text-transform: uppercase;
-                        padding: 6px 14px;
-                        border-radius: 100px;
-                        margin-bottom: 20px;
-                    }
-                    .hero h1 {
-                        font-size: clamp(28px, 5vw, 52px);
+                    .header h1 {
+                        font-size: 2.5rem;
                         font-weight: 800;
-                        color: #fff;
-                        letter-spacing: -0.03em;
-                        margin-bottom: 16px;
-                        position: relative;
+                        color: var(--text-bright);
+                        letter-spacing: -0.02em;
+                        margin-bottom: 12px;
                     }
-                    .hero h1 span {
-                        background: linear-gradient(90deg, var(--accent), var(--accent2));
-                        -webkit-background-clip: text;
-                        -webkit-text-fill-color: transparent;
-                        background-clip: text;
+                    .header p {
+                        font-size: 1.1rem;
+                        color: #c7d2fe;
+                        max-width: 650px;
+                        margin: 0 auto 20px auto;
                     }
-                    .hero p {
-                        color: #a5b4fc;
-                        font-size: 16px;
-                        max-width: 520px;
-                        margin: 0 auto 28px;
-                    }
-                    .stats-bar {
-                        display: flex;
-                        gap: 32px;
-                        justify-content: center;
-                        flex-wrap: wrap;
-                        position: relative;
-                    }
-                    .stat {
-                        text-align: center;
-                    }
-                    .stat-value {
-                        display: block;
-                        font-size: 28px;
-                        font-weight: 800;
-                        color: #fff;
-                        line-height: 1;
-                    }
-                    .stat-label {
-                        font-size: 11px;
-                        color: #a5b4fc;
+                    .github-btn {
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 8px;
+                        background: rgba(255, 255, 255, 0.1);
+                        color: #ffffff;
+                        padding: 10px 20px;
+                        border-radius: 9999px;
+                        text-decoration: none;
                         font-weight: 600;
-                        text-transform: uppercase;
-                        letter-spacing: 0.1em;
-                        margin-top: 4px;
+                        font-size: 0.9rem;
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        transition: all 0.2s ease;
                     }
-
-                    /* Main content */
-                    .container {
-                        max-width: 860px;
-                        margin: 0 auto;
-                        padding: 48px 24px;
-                    }
-                    .section-label {
-                        font-size: 11px;
-                        font-weight: 700;
-                        text-transform: uppercase;
-                        letter-spacing: 0.12em;
-                        color: var(--accent);
-                        margin-bottom: 24px;
-                        padding-bottom: 12px;
-                        border-bottom: 1px solid var(--border);
-                    }
-
-                    /* Tip Cards */
-                    .tip-card {
-                        background: var(--surface);
-                        border: 1px solid var(--border);
-                        border-radius: var(--radius);
-                        margin-bottom: 24px;
-                        overflow: hidden;
-                        transition: border-color 0.2s, transform 0.2s;
-                    }
-                    .tip-card:hover {
-                        border-color: rgba(129,140,248,0.4);
+                    .github-btn:hover {
+                        background: rgba(255, 255, 255, 0.2);
                         transform: translateY(-2px);
                     }
-                    .tip-card-header {
+                    .container {
+                        max-width: 850px;
+                        margin: 40px auto 0 auto;
+                        padding: 0 20px;
+                    }
+                    .controls {
+                        margin-bottom: 24px;
+                    }
+                    .search-input {
+                        width: 100%;
+                        padding: 14px 20px;
+                        background-color: var(--bg-card);
+                        border: 1px solid var(--border-color);
+                        border-radius: 12px;
+                        color: var(--text-main);
+                        font-size: 1rem;
+                        outline: none;
+                        transition: border-color 0.2s ease;
+                    }
+                    .search-input:focus {
+                        border-color: var(--accent-color);
+                    }
+                    .tip-card {
+                        background-color: var(--bg-card);
+                        border: 1px solid var(--border-color);
+                        border-radius: 14px;
+                        margin-bottom: 18px;
+                        overflow: hidden;
+                        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+                    }
+                    .tip-card:hover {
+                        border-color: #374151;
+                        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+                    }
+                    .card-header {
                         padding: 20px 24px;
-                        background: var(--surface2);
-                        border-bottom: 1px solid var(--border);
+                        cursor: pointer;
                         display: flex;
-                        align-items: flex-start;
                         justify-content: space-between;
-                        gap: 16px;
+                        align-items: center;
+                        user-select: none;
                     }
-                    .tip-number {
+                    .card-title {
+                        font-size: 1.25rem;
+                        font-weight: 700;
+                        color: var(--text-bright);
+                        margin: 6px 0 4px 0;
+                    }
+                    .card-meta {
+                        font-size: 0.85rem;
+                        color: var(--text-muted);
+                    }
+                    .badge {
                         display: inline-block;
-                        font-size: 10px;
-                        font-weight: 700;
+                        padding: 3px 10px;
+                        background-color: #1f2937;
+                        color: #9ca3af;
+                        border-radius: 9999px;
+                        font-size: 0.75rem;
+                        font-weight: 600;
                         text-transform: uppercase;
-                        letter-spacing: 0.1em;
-                        color: var(--accent);
-                        margin-bottom: 6px;
                     }
-                    .tip-title {
-                        font-size: 17px;
-                        font-weight: 700;
-                        color: #fff;
-                        line-height: 1.3;
+                    .badge-latest {
+                        background-color: #312e81;
+                        color: #a5b4fc;
+                        border: 1px solid #4338ca;
                     }
-                    .tip-date {
-                        font-size: 11px;
+                    .chevron {
                         color: var(--text-muted);
-                        white-space: nowrap;
-                        font-weight: 500;
-                        margin-top: 2px;
-                        flex-shrink: 0;
+                        font-size: 0.9rem;
+                        transition: transform 0.3s ease;
                     }
-                    .tip-body {
-                        padding: 24px;
-                        color: var(--text-muted);
+                    .tip-card.active .chevron {
+                        transform: rotate(180deg);
                     }
-                    .tip-body p { margin-bottom: 14px; color: #cbd5e1; }
-                    .tip-body h3 { color: var(--accent); font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; margin: 20px 0 10px; }
-                    .tip-body ul, .tip-body ol { margin: 0 0 14px 20px; }
-                    .tip-body li { margin-bottom: 6px; color: #cbd5e1; }
-                    .tip-body strong { color: #e2e8f0; font-weight: 600; }
-                    .tip-body code { background: var(--code-bg); color: #a5b4fc; padding: 2px 6px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 13px; }
-                    .tip-body pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin: 14px 0; overflow-x: auto; }
-                    .tip-body pre code { background: none; padding: 0; color: #e2e8f0; font-size: 13px; line-height: 1.6; }
-
-                    /* Footer */
-                    footer {
+                    .card-body {
+                        display: none;
+                        padding: 0 24px 24px 24px;
+                        border-top: 1px solid #1f2937;
+                        margin-top: 4px;
+                        padding-top: 20px;
+                        color: #d1d5db;
+                    }
+                    .tip-card.active .card-body {
+                        display: block;
+                    }
+                    pre {
+                        background-color: #030712 !important;
+                        border: 1px solid #1f2937 !important;
+                        border-radius: 8px;
+                        padding: 16px;
+                        overflow-x: auto;
+                        font-family: 'Fira Code', monospace;
+                        font-size: 0.875rem;
+                        margin: 16px 0;
+                    }
+                    ul, ol { padding-left: 20px; margin-bottom: 16px; }
+                    li { margin-bottom: 6px; }
+                    p { margin-bottom: 14px; }
+                    strong { color: #f9fafb; }
+                    .empty-state {
                         text-align: center;
-                        padding: 32px 24px;
-                        border-top: 1px solid var(--border);
-                        color: var(--text-muted);
-                        font-size: 12px;
+                        padding: 60px 20px;
+                        background-color: var(--bg-card);
+                        border-radius: 14px;
+                        border: 1px solid var(--border-color);
                     }
-                    footer strong { color: var(--text); }
+                    .footer {
+                        text-align: center;
+                        margin-top: 50px;
+                        color: var(--text-muted);
+                        font-size: 0.875rem;
+                    }
                 </style>
             </head>
             <body>
-                <header class="hero">
-                    <div class="hero-badge">Powered by Groq AI + Java</div>
-                    <h1>Daily Java <span>Interview Tips</span></h1>
-                    <p>An automated archive of AI-generated, production-grade Java interview topics delivered every morning.</p>
-                    <div class="stats-bar">
-                        <div class="stat">
-                            <span class="stat-value">%d</span>
-                            <span class="stat-label">Tips Published</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-value">Daily</span>
-                            <span class="stat-label">Frequency</span>
-                        </div>
-                        <div class="stat">
-                            <span class="stat-value">10 AM</span>
-                            <span class="stat-label">IST Delivery</span>
-                        </div>
-                    </div>
+                <header class="header">
+                    <h1>Java AI Daily Interview Tips</h1>
+                    <p>Automated background service generating daily Java interview tips powered by Groq LLM and GitHub Actions.</p>
+                    <a href="https://github.com/shivakumarsouta/Java-AI-Tips-AutomationService" target="_blank" class="github-btn">
+                        <svg height="18" width="18" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+                        View Source Code on GitHub
+                    </a>
                 </header>
 
                 <main class="container">
-                    <p class="section-label">All Tips — Newest First</p>
-                    %s
+                    <div class="controls">
+                        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Search Java interview tips (e.g. Garbage Collector, Streams, Virtual Threads)..." onkeyup="filterTips()">
+                    </div>
+
+                    <div id="tipsList">
+                        {content}
+                    </div>
                 </main>
 
-                <footer>
-                    <p><strong>Java AI Tips Automation Service</strong></p>
-                    <p style="margin-top:6px">Built with Java 17 · Groq API · GitHub Actions · SQLite · Jakarta Mail</p>
-                    <p style="margin-top:4px">Last updated: %s IST</p>
+                <footer class="footer">
+                    <p>Powered by Java 17 • Groq LLM API • SQLite • GitHub Actions</p>
                 </footer>
+
+                <script>
+                    function toggleCard(headerElem) {
+                        const card = headerElem.parentElement;
+                        card.classList.toggle('active');
+                    }
+                    function filterTips() {
+                        const query = document.getElementById('searchInput').value.toLowerCase();
+                        const cards = document.querySelectorAll('.tip-card');
+                        cards.forEach(card => {
+                            const title = card.getAttribute('data-title').toLowerCase();
+                            const concept = card.getAttribute('data-concept').toLowerCase();
+                            if (title.includes(query) || concept.includes(query)) {
+                                card.style.display = 'block';
+                            } else {
+                                card.style.display = 'none';
+                            }
+                        });
+                    }
+                    // Auto expand the latest tip
+                    document.addEventListener('DOMContentLoaded', () => {
+                        const firstCard = document.querySelector('.tip-card');
+                        if (firstCard) firstCard.classList.add('active');
+                    });
+                </script>
             </body>
             </html>
-            """.formatted(tips.size(), cards.toString(), lastUpdated);
+            """;
+        return template.replace("{content}", cardsHtml.toString());
     }
 
-    /** Applies basic inline style to pre/code blocks for web rendering */
-    private String styleCodeBlocksForWeb(String html) {
-        if (html == null) return "";
-        return html
-                .replaceAll("(?i)<pre[^>]*>\\s*<code[^>]*>", "<pre><code>")
-                .replaceAll("(?i)</code>\\s*</pre>", "</code></pre>");
+    private String escapeHtml(String input) {
+        if (input == null) return "";
+        return input.replace("&", "&amp;")
+                    .replace("<", "&lt;")
+                    .replace(">", "&gt;");
     }
 
-    private String escapeHtml(String text) {
-        if (text == null) return "";
-        return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;");
+    private String escapeAttr(String input) {
+        if (input == null) return "";
+        return escapeHtml(input).replace("\"", "&quot;");
     }
 }
