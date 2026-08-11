@@ -195,10 +195,55 @@
         </div>
 
         <div id="tipsList">
-            <div class="tip-card" data-title="Java Generics Type Erasure and Wildcards" data-concept="Generics Type Erasure, Bridge Methods, and Wildcards (PECS: Producer Extends, Consumer Super)">
+            <div class="tip-card" data-title="Mastering ConcurrentHashMap Internal Implementation" data-concept="ConcurrentHashMap Internal Implementation (CAS operations, bucket locking, tree bins)">
     <div class="card-header" onclick="toggleCard(this)">
         <div>
             <span class="badge badge-latest">Latest Issue</span>
+            <h2 class="card-title">Mastering ConcurrentHashMap Internal Implementation</h2>
+            <span class="card-meta">Sent on 2026-08-11 05:35:28 • Topic: ConcurrentHashMap Internal Implementation (CAS operations, bucket locking, tree bins)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+        <p>ConcurrentHashMap is a concurrent map implementation that provides high throughput and scalability in multithreaded environments. Its internal implementation is based on a combination of techniques such as CAS (Compare-And-Swap) operations, bucket locking, and tree bins. The map is divided into a fixed number of buckets, each of which is a linked list or a tree bin.</p>
+   <p>The <strong>CAS (Compare-And-Swap) operation</strong> is a non-blocking synchronization technique used to update the values in the map. It allows multiple threads to update the same value without blocking each other, thus improving concurrency. <em>CAS operations are used to update the values in the map, and they are implemented using the <code>java.util.concurrent.atomic</code> package</em>.</p>
+   <p><strong>Bucket locking</strong> is a technique used to synchronize access to the buckets in the map. Each bucket has a lock associated with it, and only one thread can acquire the lock and update the bucket at a time. This ensures that the updates to the bucket are thread-safe.</p>
+   <p><strong>Tree bins</strong> are used to store the entries in the map when the number of collisions in a bucket exceeds a certain threshold. Tree bins are implemented as a red-black tree, which provides efficient search, insertion, and deletion operations.</p>
+   <p>Here is an example of how to use ConcurrentHashMap in a multithreaded environment:</p>
+   <pre><code class="language-java">import java.util.concurrent.ConcurrentHashMap;
+   import java.util.concurrent.ExecutorService;
+   import java.util.concurrent.Executors;
+
+   public class ConcurrentHashMapExample {
+       public static void main(String[] args) {
+           ConcurrentHashMap&lt;String, Integer&gt; map = new ConcurrentHashMap&lt;&gt;();
+           ExecutorService executor = Executors.newFixedThreadPool(10);
+
+           for (int i = 0; i &lt; 100; i++) {
+               final int index = i;
+               executor.submit(() -&gt; {
+                   map.put("Key" + index, index);
+               });
+           }
+
+           executor.shutdown();
+           System.out.println(map);
+       }
+   }
+   </code></pre>
+   <p>In the above example, we create a ConcurrentHashMap and an ExecutorService with 10 threads. We then submit 100 tasks to the executor, each of which puts a key-value pair into the map. The ConcurrentHashMap ensures that the updates to the map are thread-safe and efficient.</p>
+   <p>A common gotcha when using ConcurrentHashMap is to assume that the <code>putIfAbsent</code> method is atomic. While it is true that the method is atomic, it does not guarantee that the value will be updated if another thread is updating the same key at the same time. To avoid this issue, you can use the <code>compute</code> method, which allows you to specify a function to compute the new value if the key is already present in the map.</p>
+   <ul>
+       <li>What is the difference between ConcurrentHashMap and Hashtable?</li>
+       <li>How does ConcurrentHashMap handle collisions?</li>
+   </ul>
+   <p>Understanding the internal implementation of ConcurrentHashMap and its synchronization techniques is crucial for designing and developing high-performance concurrent applications. By using ConcurrentHashMap and its advanced synchronization techniques, you can write efficient and thread-safe code that takes advantage of multiple cores and improves the overall performance of your application.</p>
+    </div>
+</div>
+<div class="tip-card" data-title="Java Generics Type Erasure and Wildcards" data-concept="Generics Type Erasure, Bridge Methods, and Wildcards (PECS: Producer Extends, Consumer Super)">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <span class="badge">Tip #11</span>
             <h2 class="card-title">Java Generics Type Erasure and Wildcards</h2>
             <span class="card-meta">Sent on 2026-08-10 05:55:38 • Topic: Generics Type Erasure, Bridge Methods, and Wildcards (PECS: Producer Extends, Consumer Super)</span>
         </div>
