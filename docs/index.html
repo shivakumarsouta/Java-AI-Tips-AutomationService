@@ -195,10 +195,54 @@
         </div>
 
         <div id="tipsList">
-            <div class="tip-card" data-title="Mastering ConcurrentHashMap Internal Implementation" data-concept="ConcurrentHashMap Internal Implementation (CAS operations, bucket locking, tree bins)">
+            <div class="tip-card" data-title="Mastering Sealed Classes and Interface Hierarchies in Java" data-concept="Sealed Classes and Interface Hierarchies (controlling inheritance and exhaustiveness in switch)">
     <div class="card-header" onclick="toggleCard(this)">
         <div>
             <span class="badge badge-latest">Latest Issue</span>
+            <h2 class="card-title">Mastering Sealed Classes and Interface Hierarchies in Java</h2>
+            <span class="card-meta">Sent on 2026-08-12 05:55:37 • Topic: Sealed Classes and Interface Hierarchies (controlling inheritance and exhaustiveness in switch)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+        <p>Java 15 introduced sealed classes and interfaces, which enable developers to restrict which classes can extend or implement them. This feature is particularly useful for creating closed hierarchies where all possible subclasses are known at compile time, thereby allowing the compiler to perform exhaustiveness checks in switch statements.</p>
+   <p>A sealed class or interface is declared using the <strong>sealed</strong> keyword, and its permitted subclasses or implementors are specified after the <strong>permits</strong> keyword. For example:</p>
+   <pre><code class="language-java">public sealed class Shape permits Circle, Rectangle, Triangle {
+       // common attributes and methods for shapes
+   }
+
+   public final class Circle extends Shape {
+       // circle-specific attributes and methods
+   }
+
+   public final class Rectangle extends Shape {
+       // rectangle-specific attributes and methods
+   }
+
+   public final class Triangle extends Shape {
+       // triangle-specific attributes and methods
+   }</code></pre>
+   <p>In contrast to the old way of using abstract classes or interfaces without any restriction on subclassing, sealed classes provide a way to define a closed set of subclasses, making the code more predictable and maintainable. For instance, consider a switch statement that handles all possible shapes:</p>
+   <pre><code class="language-java">public void processShape(Shape shape) {
+       switch (shape) {
+           case Circle circle -&gt; System.out.println("Circle: " + circle.getRadius());
+           case Rectangle rectangle -&gt; System.out.println("Rectangle: " + rectangle.getWidth() + "x" + rectangle.getHeight());
+           case Triangle triangle -&gt; System.out.println("Triangle: " + triangle.getBase() + "x" + triangle.getHeight());
+       }
+   }</code></pre>
+   <p>In this example, the compiler can perform an exhaustiveness check, ensuring that all possible subclasses of <strong>Shape</strong> are handled in the switch statement. If a new subclass is added in the future, the compiler will report an error if the switch statement is not updated accordingly.</p>
+   <p>Common interviewer gotchas/questions may include:</p>
+   <ul>
+       <li><strong>What is the difference between a sealed class and an abstract class?</strong> A sealed class restricts which classes can extend it, whereas an abstract class does not impose any such restriction.</li>
+       <li><strong>How do you ensure exhaustiveness in a switch statement when using sealed classes?</strong> By using a switch statement with an exhaustive set of cases, covering all possible subclasses of the sealed class, and relying on the compiler to report an error if any case is missing.</li>
+   </ul>
+   <p>By mastering sealed classes and interface hierarchies, developers can write more robust, maintainable, and type-safe Java code, taking advantage of the compiler's ability to perform exhaustiveness checks and enforce control over inheritance.
+    </div>
+</div>
+<div class="tip-card" data-title="Mastering ConcurrentHashMap Internal Implementation" data-concept="ConcurrentHashMap Internal Implementation (CAS operations, bucket locking, tree bins)">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <span class="badge">Tip #12</span>
             <h2 class="card-title">Mastering ConcurrentHashMap Internal Implementation</h2>
             <span class="card-meta">Sent on 2026-08-11 05:35:28 • Topic: ConcurrentHashMap Internal Implementation (CAS operations, bucket locking, tree bins)</span>
         </div>
