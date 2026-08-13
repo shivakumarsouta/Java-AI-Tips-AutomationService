@@ -195,10 +195,149 @@
         </div>
 
         <div id="tipsList">
-            <div class="tip-card" data-title="Mastering Sealed Classes and Interface Hierarchies in Java" data-concept="Sealed Classes and Interface Hierarchies (controlling inheritance and exhaustiveness in switch)">
+            <div class="tip-card" data-title="Java NIO vs IO Performance Comparison" data-concept="Java NIO vs IO (Selectors, Channels, Buffers, and Non-blocking execution)">
     <div class="card-header" onclick="toggleCard(this)">
         <div>
             <span class="badge badge-latest">Latest Issue</span>
+            <h2 class="card-title">Java NIO vs IO Performance Comparison</h2>
+            <span class="card-meta">Sent on 2026-08-13 05:57:32 • Topic: Java NIO vs IO (Selectors, Channels, Buffers, and Non-blocking execution)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+        <p>Java NIO (Non-blocking I/O) is a set of APIs designed to provide a more efficient way of handling I/O operations compared to the traditional Java IO API. The key components of Java NIO include <strong>selectors</strong>, <strong>channels</strong>, and <strong>buffers</strong>.</p>
+   <p>A <strong>channel</strong> represents an open connection to a hardware device, such as a file or a socket. Channels are the core of the NIO API and provide a more efficient way of handling I/O operations compared to traditional streams.</p>
+   <p>A <strong>buffer</strong> is a region of memory used to hold data temporarily while it is being transferred between channels. Buffers are used to improve performance by reducing the number of I/O operations required.</p>
+   <p>A <strong>selector</strong> is an object that can be used to select which channels are ready for I/O operations. Selectors allow a single thread to handle multiple channels, making it more efficient to handle a large number of connections.</p>
+   <p>Non-blocking execution is a key feature of Java NIO, allowing a thread to perform other tasks while waiting for I/O operations to complete. This is in contrast to traditional IO, which blocks the thread until the operation is complete.</p>
+   <p>Here is an example of using Java NIO to create a simple echo server:</p>
+   <pre><code class="language-java">import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
+import java.util.Iterator;
+import java.util.Set;
+
+public class EchoServer {
+    public static void main(String[] args) throws IOException {
+        // Create a new server socket channel
+        ServerSocketChannel serverChannel = ServerSocketChannel.open();
+        serverChannel.configureBlocking(false);
+
+        // Bind the server socket to a specific address and port
+        serverChannel.socket().bind(new InetSocketAddress(8000));
+
+        // Create a new selector
+        Selector selector = Selector.open();
+
+        // Register the server socket with the selector
+        serverChannel.register(selector, SelectionKey.OP_ACCEPT);
+
+        while (true) {
+            // Select the channels that are ready for I/O operations
+            selector.select();
+
+            // Get the set of selected keys
+            Set&lt;SelectionKey&gt; selectedKeys = selector.selectedKeys();
+
+            // Create an iterator over the selected keys
+            Iterator&lt;SelectionKey&gt; keyIterator = selectedKeys.iterator();
+
+            while (keyIterator.hasNext()) {
+                SelectionKey key = keyIterator.next();
+
+                // Check if the key is acceptable
+                if (key.isAcceptable()) {
+                    // Accept the new connection
+                    SocketChannel socketChannel = serverChannel.accept();
+
+                    // Configure the socket channel to be non-blocking
+                    socketChannel.configureBlocking(false);
+
+                    // Register the socket channel with the selector
+                    socketChannel.register(selector, SelectionKey.OP_READ);
+                } else if (key.isReadable()) {
+                    // Get the socket channel associated with the key
+                    SocketChannel socketChannel = (SocketChannel) key.channel();
+
+                    // Create a new byte buffer
+                    ByteBuffer buffer = ByteBuffer.allocate(1024);
+
+                    // Read data from the socket channel into the buffer
+                    int bytesRead = socketChannel.read(buffer);
+
+                    // Check if the end of the stream has been reached
+                    if (bytesRead == -1) {
+                        // Close the socket channel
+                        socketChannel.close();
+                    } else {
+                        // Flip the buffer to prepare it for writing
+                        buffer.flip();
+
+                        // Write the data back to the socket channel
+                        socketChannel.write(buffer);
+
+                        // Clear the buffer to prepare it for the next read
+                        buffer.clear();
+                    }
+                }
+
+                // Remove the key from the selected keys set
+                keyIterator.remove();
+            }
+        }
+    }
+}</code></pre>
+   <p>In contrast, traditional Java IO would use a separate thread for each connection, which can lead to performance issues and increased memory usage. For example:</p>
+   <pre><code class="language-java">import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class TraditionalEchoServer {
+    public static void main(String[] args) throws IOException {
+        // Create a new server socket
+        ServerSocket serverSocket = new ServerSocket(8000);
+
+        while (true) {
+            // Accept a new connection
+            Socket socket = serverSocket.accept();
+
+            // Create a new thread to handle the connection
+            Thread thread = new Thread(() -&gt; {
+                try {
+                    // Read data from the socket
+                    byte[] buffer = new byte[1024];
+                    int bytesRead = socket.getInputStream().read(buffer);
+
+                    // Write the data back to the socket
+                    socket.getOutputStream().write(buffer, 0, bytesRead);
+                } catch (IOException e) {
+                    // Handle the exception
+                } finally {
+                    // Close the socket
+                    socket.close();
+                }
+            });
+
+            // Start the thread
+            thread.start();
+        }
+    }
+}</code></pre>
+   <p>Some common interviewer gotchas/questions include:</p>
+   <ul>
+       <li><strong>What is the difference between a channel and a stream?</strong> A channel is a more efficient way of handling I/O operations, while a stream is a traditional way of handling I/O operations.</li>
+       <li><strong>How do you handle a large number of connections using Java NIO?</strong> You can use a selector to select which channels are ready for I/O operations, allowing a single thread to handle multiple connections.</li>
+   </ul>
+    </div>
+</div>
+<div class="tip-card" data-title="Mastering Sealed Classes and Interface Hierarchies in Java" data-concept="Sealed Classes and Interface Hierarchies (controlling inheritance and exhaustiveness in switch)">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <span class="badge">Tip #13</span>
             <h2 class="card-title">Mastering Sealed Classes and Interface Hierarchies in Java</h2>
             <span class="card-meta">Sent on 2026-08-12 05:55:37 • Topic: Sealed Classes and Interface Hierarchies (controlling inheritance and exhaustiveness in switch)</span>
         </div>
