@@ -195,10 +195,53 @@
         </div>
 
         <div id="tipsList">
-            <div class="tip-card" data-title="Java NIO vs IO Performance Comparison" data-concept="Java NIO vs IO (Selectors, Channels, Buffers, and Non-blocking execution)">
+            <div class="tip-card" data-title="Java Reflection API vs MethodHandles" data-concept="Java Reflection API vs MethodHandles (performance and access control)">
     <div class="card-header" onclick="toggleCard(this)">
         <div>
             <span class="badge badge-latest">Latest Issue</span>
+            <h2 class="card-title">Java Reflection API vs MethodHandles</h2>
+            <span class="card-meta">Sent on 2026-08-14 05:55:55 • Topic: Java Reflection API vs MethodHandles (performance and access control)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+        <p>Java Reflection API and MethodHandles are two mechanisms used for dynamic method invocation in Java. The Java Reflection API provides a way to inspect and dynamically call classes, methods, and fields at runtime, while MethodHandles provide a more efficient and secure way to invoke methods.</p>
+   <p>The Java Reflection API uses <strong>java.lang.reflect</strong> package and provides classes like <em>Method</em>, <em>Field</em>, and <em>Constructor</em> to access and invoke methods, fields, and constructors. However, this approach can be slow and poses security risks because it bypasses the compiler's type safety and access control checks.</p>
+   <p>On the other hand, MethodHandles use the <strong>java.lang.invoke</strong> package and provide a more efficient and secure way to invoke methods. MethodHandles are created using the <em>MethodHandles.Lookup</em> class and can be used to invoke methods with better performance and access control.</p>
+   <p>A key difference between Java Reflection API and MethodHandles is the way they handle access control. Java Reflection API can bypass access control checks using the <em>setAccessible</em> method, which can pose security risks. MethodHandles, on the other hand, respect access control checks and require the <em>Lookup</em> object to have the necessary permissions to invoke a method.</p>
+   <p>Here is an example code snippet that demonstrates the use of Java Reflection API and MethodHandles:</p>
+   <pre><code class="language-java">import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Method;
+
+public class ReflectionVsMethodHandles {
+   public static void main(String[] args) throws Throwable {
+       // Using Java Reflection API
+       Class&lt;String&gt; clazz = String.class;
+       Method method = clazz.getMethod("toUpperCase");
+       String result = (String) method.invoke("hello");
+       System.out.println(result);
+
+       // Using MethodHandles
+       MethodHandles.Lookup lookup = MethodHandles.lookup();
+       MethodHandle methodHandle = lookup.findVirtual(String.class, "toUpperCase", MethodType.methodType(String.class));
+       String result2 = (String) methodHandle.invoke("hello");
+       System.out.println(result2);
+   }
+}</code></pre>
+   <p>In terms of performance, MethodHandles are generally faster than Java Reflection API because they are optimized for performance and can be inlined by the JIT compiler.</p>
+   <p>Common interviewer gotchas include:</p>
+   <ul>
+       <li><strong>What is the difference between Java Reflection API and MethodHandles in terms of performance and access control?</strong></li>
+       <li><strong>How do you use MethodHandles to invoke a method with varargs parameters?</strong></li>
+   </ul>
+   <p>When answering these questions, be sure to highlight the benefits of using MethodHandles, such as better performance and access control, and provide examples of how to use them in a Java application.
+    </div>
+</div>
+<div class="tip-card" data-title="Java NIO vs IO Performance Comparison" data-concept="Java NIO vs IO (Selectors, Channels, Buffers, and Non-blocking execution)">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <span class="badge">Tip #14</span>
             <h2 class="card-title">Java NIO vs IO Performance Comparison</h2>
             <span class="card-meta">Sent on 2026-08-13 05:57:32 • Topic: Java NIO vs IO (Selectors, Channels, Buffers, and Non-blocking execution)</span>
         </div>
