@@ -195,10 +195,69 @@
         </div>
 
         <div id="tipsList">
-            <div class="tip-card" data-title="Mastering JVM Memory Areas" data-concept="JVM Memory Areas (Heap, Stack, Metaspace, Off-Heap Direct Buffers)">
+            <div class="tip-card" data-title="Mastering Custom Annotations and Runtime Processing in Java" data-concept="Custom Annotations and Runtime Processing (Retention policies and Reflection inspection)">
     <div class="card-header" onclick="toggleCard(this)">
         <div>
             <span class="badge badge-latest">Latest Issue</span>
+            <h2 class="card-title">Mastering Custom Annotations and Runtime Processing in Java</h2>
+            <span class="card-meta">Sent on 2026-08-16 05:01:06 • Topic: Custom Annotations and Runtime Processing (Retention policies and Reflection inspection)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+        <p>Java annotations are a powerful feature that allows developers to add metadata to their code, which can then be processed at compile-time or runtime. Custom annotations can be used to implement various aspects of an application, such as logging, security, and validation. To create a custom annotation, you need to define an <code>@interface</code> with the desired attributes.</p>
+   <p>One of the key aspects of custom annotations is the retention policy, which determines how long the annotation is retained. There are three retention policies: <strong>SOURCE</strong>, <strong>CLASS</strong>, and <strong>RUNTIME</strong>. The <strong>SOURCE</strong> policy means the annotation is discarded by the compiler, the <strong>CLASS</strong> policy means the annotation is recorded in the class file but need not be retained by the VM at run time, and the <strong>RUNTIME</strong> policy means the annotation is recorded in the class file and retained by the VM at run time, so it may be read reflectively.</p>
+   <p>Here is an example of a custom annotation with a <strong>RUNTIME</strong> retention policy:</p>
+   <pre><code class="language-java">import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface Loggable {
+    String value();
+}
+</code></pre>
+   <p>This annotation can be applied to methods to indicate that they should be logged:</p>
+   <pre><code class="language-java">public class MyClass {
+    @Loggable("MyMethod")
+    public void myMethod() {
+        System.out.println("Hello World");
+    }
+}
+</code></pre>
+   <p>To process this annotation at runtime, you can use reflection to inspect the method and its annotations:</p>
+   <pre><code class="language-java">import java.lang.reflect.Method;
+
+public class AnnotationProcessor {
+    public static void processAnnotations(Object obj) {
+        Method[] methods = obj.getClass().getMethods();
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(Loggable.class)) {
+                Loggable loggable = method.getAnnotation(Loggable.class);
+                System.out.println("Logging method: " + method.getName() + " with value: " + loggable.value());
+            }
+        }
+    }
+
+    public static void main(String[] args) {
+        MyClass myClass = new MyClass();
+        processAnnotations(myClass);
+    }
+}
+</code></pre>
+   <p>Some common interviewer gotchas/questions related to custom annotations and runtime processing include:</p>
+   <ul>
+       <li><em>What is the difference between the <strong>CLASS</strong> and <strong>RUNTIME</strong> retention policies?</em> The <strong>CLASS</strong> policy means the annotation is recorded in the class file but need not be retained by the VM at run time, while the <strong>RUNTIME</strong> policy means the annotation is recorded in the class file and retained by the VM at run time, so it may be read reflectively.</li>
+       <li><em>How do you process custom annotations at runtime?</em> You can use reflection to inspect the class or method and its annotations, and then take the desired action based on the annotation's presence and attributes.</li>
+   </ul>
+    </div>
+</div>
+<div class="tip-card" data-title="Mastering JVM Memory Areas" data-concept="JVM Memory Areas (Heap, Stack, Metaspace, Off-Heap Direct Buffers)">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <span class="badge">Tip #16</span>
             <h2 class="card-title">Mastering JVM Memory Areas</h2>
             <span class="card-meta">Sent on 2026-08-15 04:57:16 • Topic: JVM Memory Areas (Heap, Stack, Metaspace, Off-Heap Direct Buffers)</span>
         </div>
