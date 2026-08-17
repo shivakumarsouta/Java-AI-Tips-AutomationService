@@ -195,10 +195,99 @@
         </div>
 
         <div id="tipsList">
-            <div class="tip-card" data-title="Mastering Custom Annotations and Runtime Processing in Java" data-concept="Custom Annotations and Runtime Processing (Retention policies and Reflection inspection)">
+            <div class="tip-card" data-title="Java AutoCloseable and Try With Resources Internals" data-concept="AutoCloseable and Try-With-Resources internals (Suppressed exceptions)">
     <div class="card-header" onclick="toggleCard(this)">
         <div>
             <span class="badge badge-latest">Latest Issue</span>
+            <h2 class="card-title">Java AutoCloseable and Try With Resources Internals</h2>
+            <span class="card-meta">Sent on 2026-08-17 05:08:47 • Topic: AutoCloseable and Try-With-Resources internals (Suppressed exceptions)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+        
+      <p>The try-with-resources statement in Java is used for automatic resource management. It ensures that resources, such as files, connections, or locks, are closed at the end of the statement, regardless of whether an exception is thrown or not. This is achieved through the use of the <strong>AutoCloseable</strong> interface, which is implemented by the resource classes.</p>
+      <p>A class that implements <strong>AutoCloseable</strong> must provide a <strong>close()</strong> method, which is called at the end of the try-with-resources statement. The <strong>close()</strong> method is responsible for releasing the resource.</p>
+      <p>Here's an example of how to use the try-with-resources statement with the <strong>FileInputStream</strong> and <strong>FileOutputStream</strong> classes, which implement <strong>AutoCloseable</strong>:</p>
+      <pre><code class="language-java">
+         import java.io.FileInputStream;
+         import java.io.FileOutputStream;
+         import java.io.IOException;
+
+         public class TryWithResourcesExample {
+            public static void main(String[] args) {
+               String inputFile = "input.txt";
+               String outputFile = "output.txt";
+
+               try (FileInputStream fis = new FileInputStream(inputFile);
+                    FileOutputStream fos = new FileOutputStream(outputFile)) {
+                  // Read from input file and write to output file
+                  byte[] buffer = new byte[1024];
+                  int bytesRead;
+                  while ((bytesRead = fis.read(buffer)) != -1) {
+                     fos.write(buffer, 0, bytesRead);
+                  }
+               } catch (IOException e) {
+                  System.err.println("Error copying file: " + e.getMessage());
+               }
+            }
+         }
+      </code></pre>
+      <p>In this example, the <strong>FileInputStream</strong> and <strong>FileOutputStream</strong> objects are automatically closed at the end of the try-with-resources statement, regardless of whether an exception is thrown or not.</p>
+      <p>Before the introduction of the try-with-resources statement, resources were typically closed in a <strong>finally</strong> block, like this:</p>
+      <pre><code class="language-java">
+         FileInputStream fis = new FileInputStream(inputFile);
+         FileOutputStream fos = new FileOutputStream(outputFile);
+         try {
+            // Read from input file and write to output file
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+               fos.write(buffer, 0, bytesRead);
+            }
+         } catch (IOException e) {
+            System.err.println("Error copying file: " + e.getMessage());
+         } finally {
+            try {
+               if (fis != null) {
+                  fis.close();
+               }
+               if (fos != null) {
+                  fos.close();
+               }
+            } catch (IOException e) {
+               System.err.println("Error closing files: " + e.getMessage());
+            }
+         }
+      </code></pre>
+      <p>This approach is more error-prone and less readable than the try-with-resources statement.</p>
+      <p>One common gotcha when using the try-with-resources statement is that it can suppress exceptions. If an exception is thrown from the try block and another exception is thrown from the <strong>close()</strong> method, the exception from the try block is the primary exception, and the exception from the <strong>close()</strong> method is suppressed. For example:</p>
+      <pre><code class="language-java">
+         try (FileInputStream fis = new FileInputStream(inputFile)) {
+            // Throw an exception from the try block
+            throw new IOException("Error reading file");
+         } catch (IOException e) {
+            System.err.println("Primary exception: " + e.getMessage());
+            // Check for suppressed exceptions
+            if (e.getSuppressed() != null) {
+               for (Throwable t : e.getSuppressed()) {
+                  System.err.println("Suppressed exception: " + t.getMessage());
+               }
+            }
+         }
+      </code></pre>
+      <p>Interviewers may ask questions like "What is the difference between <strong>AutoCloseable</strong> and <strong>Closeable</strong>?" or "How do you handle suppressed exceptions in a try-with-resources statement?" to test your understanding of the try-with-resources statement and the <strong>AutoCloseable</strong> interface.</p>
+      <ul>
+         <li><strong>What is the purpose of the try-with-resources statement?</strong> The try-with-resources statement is used for automatic resource management, ensuring that resources are closed properly, even in the presence of exceptions.</li>
+         <li><strong>What is the difference between <strong>AutoCloseable</strong> and <strong>Closeable</strong>?</strong> <strong>AutoCloseable</strong> is a supertype of <strong>Closeable</strong>, and it is used as a target for the try-with-resources statement. <strong>Closeable</strong> is a subtype of <strong>AutoCloseable</strong>, and it is used for resources that need to be closed explicitly.</li>
+      </ul>
+   
+    </div>
+</div>
+<div class="tip-card" data-title="Mastering Custom Annotations and Runtime Processing in Java" data-concept="Custom Annotations and Runtime Processing (Retention policies and Reflection inspection)">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <span class="badge">Tip #17</span>
             <h2 class="card-title">Mastering Custom Annotations and Runtime Processing in Java</h2>
             <span class="card-meta">Sent on 2026-08-16 05:01:06 • Topic: Custom Annotations and Runtime Processing (Retention policies and Reflection inspection)</span>
         </div>
