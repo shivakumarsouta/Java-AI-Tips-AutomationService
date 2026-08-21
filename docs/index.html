@@ -195,10 +195,36 @@
         </div>
 
         <div id="tipsList">
-            <div class="tip-card" data-title="Java Garbage Collectors: G1 vs ZGC Differences and Use Cases" data-concept="Java Garbage Collectors (G1 vs ZGC differences and use cases)">
+            <div class="tip-card" data-title="Virtual Threads (Project Loom) in Java 21" data-concept="Virtual Threads (Project Loom, how they differ from Platform Threads)">
     <div class="card-header" onclick="toggleCard(this)">
         <div>
             <span class="badge badge-latest">Latest Issue</span>
+            <h2 class="card-title">Virtual Threads (Project Loom) in Java 21</h2>
+            <span class="card-meta">Sent on 2026-08-21 05:05:23 • Topic: Virtual Threads (Project Loom, how they differ from Platform Threads)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+                    <p><strong>Overview:</strong> Traditional OS platform threads are expensive (~1MB stack per thread). Virtual threads (Java 21) decouple Java threads from OS threads, allowing millions of concurrent tasks to execute simultaneously.</p>
+            <p><strong>Key Gotchas:</strong> Avoid pinning virtual threads to platform carrier threads by replacing <code>synchronized</code> blocks with <code>ReentrantLock</code> during blocking I/O calls.</p>
+            <pre><code class="language-java">try (var executor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+    for (int i = 0; i < 100_000; i++) {
+        final int taskId = i;
+        executor.submit(() -> {
+            // High throughput blocking network call
+            java.util.concurrent.TimeUnit.MILLISECONDS.sleep(100);
+            return taskId;
+        });
+    }
+} // AutoCloseable executor awaits completion
+</code></pre>
+
+    </div>
+</div>
+<div class="tip-card" data-title="Java Garbage Collectors: G1 vs ZGC Differences and Use Cases" data-concept="Java Garbage Collectors (G1 vs ZGC differences and use cases)">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <span class="badge">Tip #21</span>
             <h2 class="card-title">Java Garbage Collectors: G1 vs ZGC Differences and Use Cases</h2>
             <span class="card-meta">Sent on 2026-08-20 05:04:49 • Topic: Java Garbage Collectors (G1 vs ZGC differences and use cases)</span>
         </div>
