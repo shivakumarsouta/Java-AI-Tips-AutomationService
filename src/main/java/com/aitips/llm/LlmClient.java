@@ -85,28 +85,45 @@ public class LlmClient {
 
     private GeneratedTip generateTipInternal(String concept) throws IOException, InterruptedException {
         String systemPrompt = """
-            You are an expert Java Compiler Engineer, Principal Architect, and elite Technical Interviewer.
-            Your task is to write a highly detailed, professional, and comprehensive Java Interview Tip.
+            You are a Principal Java Architect and Technical Interviewer.
+            Your task is to write a complete, focused, self-contained Java Engineering & Interview Tip on 1 core concept.
+            CRITICAL REQUIREMENT: Do NOT output incomplete or truncated sentences/code. Ensure all code blocks, HTML tags, and Q&As are completely finished.
+
             You must output your response ONLY in JSON format matching this schema exactly:
             {
-              "title": "A catchy, precise topic title. Keep it clean without markdown symbols.",
-              "summary": "A 1-2 sentence concise executive summary of the concept's core importance.",
-              "detailedHtml": "Detailed technical explanation. Use clean HTML tags: <p>, <ul>, <li>, <strong>, <em>. For code blocks, you MUST wrap code in <pre><code class=\\"language-java\\">...</code></pre>. Use spaces/tabs correctly inside code. Explain core mechanics, memory layout if applicable, runtime behavior, and critical JVM tuning flags or optimization details. Include 1-2 common interviewer gotchas/questions at the end."
+              "title": "A precise, professional topic title. Clean text without markdown symbols.",
+              "summary": "A 2-sentence executive summary explaining the core concept and its production importance.",
+              "detailedHtml": "HTML string containing a focused technical breakdown organized into 4 explicit sections:
+
+              <h3>1. Core Mechanics & Internal Architecture</h3>
+              <p>Granular, step-by-step technical explanation covering JVM internals, memory behavior, or framework mechanics for this concept.</p>
+
+              <h3>2. Production-Grade Java Implementation</h3>
+              <p>A concise, idiomatic modern Java code snippet (15-25 lines max) demonstrating best practices.</p>
+              <pre><code class=\\"language-java\\">// Focused, production-ready Java code example</code></pre>
+
+              <h3>3. Performance, Memory & JVM Tuning Gotchas</h3>
+              <p>Key latency risks, memory implications, or critical JVM/framework tuning flags.</p>
+
+              <h3>4. Top Interviewer Trap Questions & Deep Answers</h3>
+              <p>1-2 high-impact interview questions with complete, definitive answers. Always finish every sentence completely.</p>
+
+              Use clean HTML tags: <h3>, <p>, <ul>, <ol>, <li>, <strong>, <em>, <code>. Wrap Java code blocks strictly in <pre><code class=\\"language-java\\">...</code></pre>."
             }
-            Do not wrap your JSON in markdown code blocks like ```json ... ```. Output raw JSON.
+            Do not wrap JSON in markdown code blocks. Output raw JSON.
             """;
 
         String userPrompt = String.format(
-            "Generate a master-level Java interview tip about the following concept: '%s'. " +
-            "Provide a production-quality, copy-pasteable Java code snippet illustrating best practices or demonstrating the mechanism. " +
-            "Contrast it with old/incorrect ways if relevant.",
+            "Generate a clear, focused, complete Java technical tip for the concept: '%s'. " +
+            "Focus on 1 core concept in depth. Keep the Java code snippet concise (15-25 lines max), and provide 1-2 complete interviewer Q&As without truncation.",
             concept
         );
 
         // Construct request payload
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("model", this.apiModel);
-        requestBody.put("temperature", 0.7);
+        requestBody.put("temperature", 0.6);
+        requestBody.put("max_tokens", 4096);
         requestBody.put("response_format", Map.of("type", "json_object"));
         requestBody.put("messages", List.of(
                 Map.of("role", "system", "content", systemPrompt),
@@ -135,6 +152,12 @@ public class LlmClient {
         JsonNode choiceNode = rootNode.path("choices").get(0);
         if (choiceNode == null || choiceNode.isMissingNode()) {
             throw new IOException("Invalid LLM response structure: choices list is missing.");
+        }
+
+        String finishReason = choiceNode.path("finish_reason").asText("");
+        if ("length".equalsIgnoreCase(finishReason)) {
+            logger.warn("LLM API output was truncated due to token limit (finish_reason=length) for concept: '{}'", concept);
+            throw new IOException("LLM output was truncated due to max token limit (finish_reason=length).");
         }
 
         String contentString = choiceNode.path("message").path("content").asText();

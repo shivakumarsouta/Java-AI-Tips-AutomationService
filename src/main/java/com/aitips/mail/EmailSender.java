@@ -99,48 +99,67 @@ public class EmailSender {
                     body {
                         margin: 0; padding: 0; background-color: #f8fafc;
                         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+                        color: #334155;
                     }
-                    p { margin: 0 0 16px 0; }
+                    p { margin: 0 0 16px 0; line-height: 1.65; }
+                    h3 {
+                        color: #312e81;
+                        font-size: 16px;
+                        font-weight: 700;
+                        margin: 28px 0 12px 0;
+                        padding-bottom: 6px;
+                        border-bottom: 2px solid #e0e7ff;
+                        letter-spacing: -0.01em;
+                    }
                     ul, ol { margin: 0 0 16px 0; padding-left: 24px; }
-                    li { margin-bottom: 8px; }
+                    li { margin-bottom: 8px; line-height: 1.6; }
                     strong { color: #0f172a; font-weight: 600; }
                     em { color: #334155; }
+                    code {
+                        background-color: #f1f5f9;
+                        color: #312e81;
+                        padding: 2px 6px;
+                        border-radius: 4px;
+                        font-family: Consolas, Monaco, "Andale Mono", monospace;
+                        font-size: 90%;
+                        border: 1px solid #e2e8f0;
+                    }
                 </style>
             </head>
             <body style="margin: 0; padding: 0; background-color: #f8fafc; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; -webkit-font-smoothing: antialiased;">
-                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; padding: 24px 0;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="background-color: #f8fafc; padding: 32px 0;">
                     <tr>
                         <td align="center">
-                            <table role="presentation" width="600" style="max-width: 600px; width: 100%; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border-collapse: separate; overflow: hidden;">
+                            <table role="presentation" width="650" style="max-width: 650px; width: 100%; background-color: #ffffff; border-radius: 12px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05); border-collapse: separate; overflow: hidden;">
                                 <!-- Premium Header -->
                                 <tr>
-                                    <td style="background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%); padding: 32px 24px; text-align: left;">
-                                        <span style="color: #c7d2fe; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; display: block; margin-bottom: 8px;">Daily Java Interview Prep</span>
-                                        <h1 style="color: #ffffff; font-size: 22px; font-weight: 800; margin: 0; line-height: 1.3; letter-spacing: -0.02em;">{title}</h1>
+                                    <td style="background: linear-gradient(135deg, #4f46e5 0%, #312e81 100%); padding: 32px 28px; text-align: left;">
+                                        <span style="color: #c7d2fe; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.15em; display: block; margin-bottom: 8px;">DAILY JAVA INTERVIEW PREP</span>
+                                        <h1 style="color: #ffffff; font-size: 22px; font-weight: 800; margin: 0; line-height: 1.35; letter-spacing: -0.02em;">{title}</h1>
                                     </td>
                                 </tr>
                                 <!-- Quick TL;DR Card -->
                                 <tr>
-                                    <td style="padding: 24px 24px 0 24px;">
-                                        <div style="background-color: #f5f3ff; border-left: 4px solid #8b5cf6; padding: 16px; border-radius: 0 8px 8px 0;">
-                                            <p style="margin: 0; color: #4c1d95; font-size: 13.5px; font-weight: 600; line-height: 1.5;">
-                                                <strong>TL;DR:</strong> {summary}
+                                    <td style="padding: 24px 28px 0 28px;">
+                                        <div style="background-color: #f5f3ff; border-left: 4px solid #8b5cf6; padding: 16px 18px; border-radius: 0 8px 8px 0;">
+                                            <p style="margin: 0; color: #4c1d95; font-size: 14px; font-weight: 600; line-height: 1.55;">
+                                                <strong style="color: #4c1d95;">TL;DR:</strong> {summary}
                                             </p>
                                         </div>
                                     </td>
                                 </tr>
                                 <!-- Main Body Content -->
                                 <tr>
-                                    <td style="padding: 24px; color: #334155; font-size: 14.5px; line-height: 1.6; text-align: left;">
+                                    <td style="padding: 24px 28px 28px 28px; color: #334155; font-size: 14.5px; line-height: 1.65; text-align: left;">
                                         {content}
                                     </td>
                                 </tr>
                                 <!-- Professional Footer -->
                                 <tr>
-                                    <td style="background-color: #f8fafc; padding: 24px; text-align: center; border-top: 1px solid #f1f5f9; color: #64748b; font-size: 12px; line-height: 1.5;">
-                                        <p style="margin: 0 0 6px 0; font-weight: 700; color: #475569;">Daily Java Interview Tip Automation Service</p>
-                                        <p style="margin: 0 0 12px 0;">Stay sharp, understand deep JVM internals, and write robust code.</p>
-                                        <p style="margin: 0; font-size: 10.5px; color: #94a3b8;">This is an automated background task. To configure parameters, edit the local <code>config.properties</code> configuration file.</p>
+                                    <td style="background-color: #f8fafc; padding: 24px 28px; text-align: center; border-top: 1px solid #f1f5f9; color: #64748b; font-size: 12px; line-height: 1.6;">
+                                        <p style="margin: 0 0 4px 0; font-weight: 700; color: #475569;">Daily Java Interview Tip Automation Service</p>
+                                        <p style="margin: 0 0 8px 0;">Stay sharp, understand deep JVM internals, and write robust production code.</p>
+                                        <p style="margin: 0; font-size: 10.5px; color: #94a3b8;">Automated background task. To configure parameters, edit the local <code>config.properties</code> file.</p>
                                     </td>
                                 </tr>
                             </table>
@@ -164,7 +183,7 @@ public class EmailSender {
         if (html == null) return "";
         
         // Match <pre><code class="..."> or <pre><code> structures and apply robust inline styles suitable for email clients
-        String styledPre = "<pre style=\"background-color: #0f172a; color: #f8fafc; padding: 18px; border-radius: 8px; overflow-x: auto; font-family: 'Fira Code', Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.5; border: 1px solid #1e293b; margin: 16px 0; tab-size: 4;\">";
+        String styledPre = "<pre style=\"background-color: #0f172a; color: #f8fafc; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace; font-size: 13px; line-height: 1.55; border: 1px solid #1e293b; margin: 20px 0; tab-size: 4;\">";
         return html
                 .replaceAll("(?i)<pre>\\s*<code[^>]*>", styledPre)
                 .replaceAll("(?i)<pre><code[^>]*>", styledPre)

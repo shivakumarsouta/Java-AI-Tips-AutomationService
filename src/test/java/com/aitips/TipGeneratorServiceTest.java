@@ -27,9 +27,18 @@ public class TipGeneratorServiceTest {
             boolean hasInvalidLine = concepts.stream().anyMatch(c -> c.trim().isEmpty() || c.startsWith("#"));
             assertFalse(hasInvalidLine, "Loaded concepts must not contain empty or commented-out lines.");
 
-            // Confirm key JVM/Java topics are loaded
+            // Confirm key JVM/Java topics and new pillars are loaded
             boolean hasGarbageCollector = concepts.stream().anyMatch(c -> c.contains("Garbage Collectors"));
             assertTrue(hasGarbageCollector, "Topics should contain 'Garbage Collectors'.");
+
+            boolean hasCommonMisconceptions = concepts.stream().anyMatch(c -> c.startsWith("[Common Misconceptions]"));
+            assertTrue(hasCommonMisconceptions, "Catalog should contain [Common Misconceptions] topics.");
+
+            boolean hasInterviewCore = concepts.stream().anyMatch(c -> c.startsWith("[Interview Core]"));
+            assertTrue(hasInterviewCore, "Catalog should contain [Interview Core] topics.");
+
+            boolean hasFullStackEssentials = concepts.stream().anyMatch(c -> c.startsWith("[Full Stack Essentials]"));
+            assertTrue(hasFullStackEssentials, "Catalog should contain [Full Stack Essentials] topics.");
         } finally {
             db.close();
         }
