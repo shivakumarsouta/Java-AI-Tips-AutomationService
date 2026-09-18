@@ -336,36 +336,328 @@
         </div>
 
         <div id="tipsList">
-            <div class="tip-card" data-title="Title B" data-concept="Concept B" data-category="all">
+            <div class="tip-card" data-title="Pass‑by‑Value Semantics in Java: Object References vs Primitive Types" data-concept="[Common Misconceptions] Pass-by-Value Semantics in Java (Object reference pass-by-value vs pass-by-reference)" data-category="misconception">
     <div class="card-header" onclick="toggleCard(this)">
         <div>
             <div class="badge-row">
                 <span class="badge badge-latest">★ Latest Issue</span>
-                
+                <span class="pill pill-misconception">Common Misconception</span>
             </div>
-            <h2 class="card-title">Title B</h2>
-            <span class="card-meta">Published on 2026-09-18 10:04:27 • Topic: Concept B</span>
+            <h2 class="card-title">Pass‑by‑Value Semantics in Java: Object References vs Primitive Types</h2>
+            <span class="card-meta">Published on 2026-09-18 10:17:32 • Topic: Pass-by-Value Semantics in Java (Object reference pass-by-value vs pass-by-reference)</span>
         </div>
         <span class="chevron">▼</span>
     </div>
     <div class="card-body">
-        <p>Content B</p>
+        <h3>1. Core Mechanics & Internal Architecture</h3>
+<p>In Java every argument is passed by value. For primitive types the value is the raw data (e.g., <code>int</code>, <code>double</code>). For objects the value is the reference (a memory address) that points to the actual heap object. The method receives a copy of that reference; both the caller and callee refer to the same object, but reassigning the parameter only changes the copy, not the caller's variable. This is why mutating the object's fields is visible after the call, while assigning a new object to the parameter is not.</p>
+
+<h3>2. Production‑Grade Java Implementation</h3>
+<p>Example showing a mutable object, an attempted swap, and a legitimate state change.</p>
+<pre><code class="language-java">class Point {
+    int x, y;
+    Point(int x, int y) { this.x = x; this.y = y; }
+    @Override public String toString() { return "(" + x + "," + y + ")"; }
+}
+
+public class PassByValueDemo {
+    static void trySwap(Point a, Point b) {
+        Point temp = a;
+        a = b;          // only the local copy of the reference changes
+        b = temp;
+    }
+
+    static void move(Point p, int dx, int dy) {
+        p.x += dx;      // mutating the object through the shared reference
+        p.y += dy;
+    }
+
+    public static void main(String[] args) {
+        Point p1 = new Point(1, 1);
+        Point p2 = new Point(5, 5);
+        trySwap(p1, p2);
+        System.out.println(p1); // prints (1,1) – not swapped
+        move(p1, 3, 4);
+        System.out.println(p1); // prints (4,5) – state changed
+    }
+}
+</code></pre>
+
+<h3>3. Performance, Memory & JVM Tuning Gotchas</h3>
+<p>Because only the reference value is copied, the overhead is constant regardless of object size, but careless aliasing can lead to unintended shared‑state bugs, especially with mutable collections. Avoid exposing internal mutable objects; prefer immutable data or defensive copies. When profiling, watch for excessive object churn caused by creating temporary wrapper objects solely for method calls.</p>
+
+<h3>4. Top Interviewer Trap Questions & Deep Answers</h3>
+<p><strong>Q1: If a method reassigns its object parameter to a new instance, does the caller see the new instance?</strong><br>
+A1: No. The method works with a copy of the original reference; reassigning that copy does not affect the caller’s variable. Only mutations on the object that both references point to are reflected back.</p>
+<p><strong>Q2: Why can a method modify the fields of an object passed as a parameter, even though Java is pass‑by‑value?</strong><br>
+A2: The value passed is the reference to the object. Both caller and callee hold references that point to the same heap instance, so changing the instance’s fields modifies the shared object. The “pass‑by‑value” rule still holds because the reference itself is copied, not the object.</p>
     </div>
 </div>
-<div class="tip-card" data-title="Title A" data-concept="Concept A" data-category="all">
+<div class="tip-card" data-title="Java Interview Prep: The ForkJoinPool and the Common Pool (work-stealing algorithm)" data-concept="The ForkJoinPool and the Common Pool (work-stealing algorithm)" data-category="all">
     <div class="card-header" onclick="toggleCard(this)">
         <div>
             <div class="badge-row">
-                <span class="badge">Issue #1</span>
+                <span class="badge">Issue #50</span>
                 
             </div>
-            <h2 class="card-title">Title A</h2>
-            <span class="card-meta">Published on 2026-09-18 10:04:27 • Topic: Concept A</span>
+            <h2 class="card-title">Java Interview Prep: The ForkJoinPool and the Common Pool (work-stealing algorithm)</h2>
+            <span class="card-meta">Published on 2026-09-18 09:07:40 • Topic: The ForkJoinPool and the Common Pool (work-stealing algorithm)</span>
         </div>
         <span class="chevron">▼</span>
     </div>
     <div class="card-body">
-        <p>Content A</p>
+                    <p><strong>Concept Deep-Dive:</strong> The ForkJoinPool and the Common Pool (work-stealing algorithm)</p>
+            <p>Understanding the internal mechanisms, thread-safety guarantees, and memory layout of <em>The ForkJoinPool and the Common Pool (work-stealing algorithm)</em> is essential for senior technical interviews.</p>
+            <pre><code class="language-java">// Production Best Practice snippet for The ForkJoinPool and the Common Pool (work-stealing algorithm)
+public final class ConceptDemo {
+    public static void execute() {
+        System.out.println("Demonstrating best practice mechanics for: " + "The ForkJoinPool and the Common Pool (work-stealing algorithm)");
+    }
+}
+</code></pre>
+            <p><strong>Key takeaway:</strong> Always analyze memory overhead, synchronization boundaries, and garbage collection implications when applying this concept in production.</p>
+
+    </div>
+</div>
+<div class="tip-card" data-title="Java Interview Prep: Java Class Loaders (Delegation model, custom loaders, and runtime isolation)" data-concept="Java Class Loaders (Delegation model, custom loaders, and runtime isolation)" data-category="all">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <div class="badge-row">
+                <span class="badge">Issue #49</span>
+                
+            </div>
+            <h2 class="card-title">Java Interview Prep: Java Class Loaders (Delegation model, custom loaders, and runtime isolation)</h2>
+            <span class="card-meta">Published on 2026-09-17 09:35:24 • Topic: Java Class Loaders (Delegation model, custom loaders, and runtime isolation)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+                    <p><strong>Concept Deep-Dive:</strong> Java Class Loaders (Delegation model, custom loaders, and runtime isolation)</p>
+            <p>Understanding the internal mechanisms, thread-safety guarantees, and memory layout of <em>Java Class Loaders (Delegation model, custom loaders, and runtime isolation)</em> is essential for senior technical interviews.</p>
+            <pre><code class="language-java">// Production Best Practice snippet for Java Class Loaders (Delegation model, custom loaders, and runtime isolation)
+public final class ConceptDemo {
+    public static void execute() {
+        System.out.println("Demonstrating best practice mechanics for: " + "Java Class Loaders (Delegation model, custom loaders, and runtime isolation)");
+    }
+}
+</code></pre>
+            <p><strong>Key takeaway:</strong> Always analyze memory overhead, synchronization boundaries, and garbage collection implications when applying this concept in production.</p>
+
+    </div>
+</div>
+<div class="tip-card" data-title="Java Interview Prep: Strong, Soft, Weak, and Phantom References in Java (GC interaction and use cases)" data-concept="Strong, Soft, Weak, and Phantom References in Java (GC interaction and use cases)" data-category="all">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <div class="badge-row">
+                <span class="badge">Issue #48</span>
+                
+            </div>
+            <h2 class="card-title">Java Interview Prep: Strong, Soft, Weak, and Phantom References in Java (GC interaction and use cases)</h2>
+            <span class="card-meta">Published on 2026-09-16 09:25:35 • Topic: Strong, Soft, Weak, and Phantom References in Java (GC interaction and use cases)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+                    <p><strong>Concept Deep-Dive:</strong> Strong, Soft, Weak, and Phantom References in Java (GC interaction and use cases)</p>
+            <p>Understanding the internal mechanisms, thread-safety guarantees, and memory layout of <em>Strong, Soft, Weak, and Phantom References in Java (GC interaction and use cases)</em> is essential for senior technical interviews.</p>
+            <pre><code class="language-java">// Production Best Practice snippet for Strong, Soft, Weak, and Phantom References in Java (GC interaction and use cases)
+public final class ConceptDemo {
+    public static void execute() {
+        System.out.println("Demonstrating best practice mechanics for: " + "Strong, Soft, Weak, and Phantom References in Java (GC interaction and use cases)");
+    }
+}
+</code></pre>
+            <p><strong>Key takeaway:</strong> Always analyze memory overhead, synchronization boundaries, and garbage collection implications when applying this concept in production.</p>
+
+    </div>
+</div>
+<div class="tip-card" data-title="Java Interview Prep: ThreadLocal vs Scoped Values (modern thread-scoped data in Java 21)" data-concept="ThreadLocal vs Scoped Values (modern thread-scoped data in Java 21)" data-category="all">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <div class="badge-row">
+                <span class="badge">Issue #47</span>
+                
+            </div>
+            <h2 class="card-title">Java Interview Prep: ThreadLocal vs Scoped Values (modern thread-scoped data in Java 21)</h2>
+            <span class="card-meta">Published on 2026-09-15 09:32:37 • Topic: ThreadLocal vs Scoped Values (modern thread-scoped data in Java 21)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+                    <p><strong>Concept Deep-Dive:</strong> ThreadLocal vs Scoped Values (modern thread-scoped data in Java 21)</p>
+            <p>Understanding the internal mechanisms, thread-safety guarantees, and memory layout of <em>ThreadLocal vs Scoped Values (modern thread-scoped data in Java 21)</em> is essential for senior technical interviews.</p>
+            <pre><code class="language-java">// Production Best Practice snippet for ThreadLocal vs Scoped Values (modern thread-scoped data in Java 21)
+public final class ConceptDemo {
+    public static void execute() {
+        System.out.println("Demonstrating best practice mechanics for: " + "ThreadLocal vs Scoped Values (modern thread-scoped data in Java 21)");
+    }
+}
+</code></pre>
+            <p><strong>Key takeaway:</strong> Always analyze memory overhead, synchronization boundaries, and garbage collection implications when applying this concept in production.</p>
+
+    </div>
+</div>
+<div class="tip-card" data-title="Java Interview Prep: Java Records, Pattern Matching, and Record Patterns (Java 16+)" data-concept="Java Records, Pattern Matching, and Record Patterns (Java 16+)" data-category="all">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <div class="badge-row">
+                <span class="badge">Issue #46</span>
+                
+            </div>
+            <h2 class="card-title">Java Interview Prep: Java Records, Pattern Matching, and Record Patterns (Java 16+)</h2>
+            <span class="card-meta">Published on 2026-09-14 10:03:07 • Topic: Java Records, Pattern Matching, and Record Patterns (Java 16+)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+                    <p><strong>Concept Deep-Dive:</strong> Java Records, Pattern Matching, and Record Patterns (Java 16+)</p>
+            <p>Understanding the internal mechanisms, thread-safety guarantees, and memory layout of <em>Java Records, Pattern Matching, and Record Patterns (Java 16+)</em> is essential for senior technical interviews.</p>
+            <pre><code class="language-java">// Production Best Practice snippet for Java Records, Pattern Matching, and Record Patterns (Java 16+)
+public final class ConceptDemo {
+    public static void execute() {
+        System.out.println("Demonstrating best practice mechanics for: " + "Java Records, Pattern Matching, and Record Patterns (Java 16+)");
+    }
+}
+</code></pre>
+            <p><strong>Key takeaway:</strong> Always analyze memory overhead, synchronization boundaries, and garbage collection implications when applying this concept in production.</p>
+
+    </div>
+</div>
+<div class="tip-card" data-title="Java Interview Prep: Java Memory Model (volatile keyword, happens-before relationship, instruction reordering)" data-concept="Java Memory Model (volatile keyword, happens-before relationship, instruction reordering)" data-category="all">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <div class="badge-row">
+                <span class="badge">Issue #45</span>
+                
+            </div>
+            <h2 class="card-title">Java Interview Prep: Java Memory Model (volatile keyword, happens-before relationship, instruction reordering)</h2>
+            <span class="card-meta">Published on 2026-09-13 09:40:53 • Topic: Java Memory Model (volatile keyword, happens-before relationship, instruction reordering)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+                    <p><strong>Concept Deep-Dive:</strong> Java Memory Model (volatile keyword, happens-before relationship, instruction reordering)</p>
+            <p>Understanding the internal mechanisms, thread-safety guarantees, and memory layout of <em>Java Memory Model (volatile keyword, happens-before relationship, instruction reordering)</em> is essential for senior technical interviews.</p>
+            <pre><code class="language-java">// Production Best Practice snippet for Java Memory Model (volatile keyword, happens-before relationship, instruction reordering)
+public final class ConceptDemo {
+    public static void execute() {
+        System.out.println("Demonstrating best practice mechanics for: " + "Java Memory Model (volatile keyword, happens-before relationship, instruction reordering)");
+    }
+}
+</code></pre>
+            <p><strong>Key takeaway:</strong> Always analyze memory overhead, synchronization boundaries, and garbage collection implications when applying this concept in production.</p>
+
+    </div>
+</div>
+<div class="tip-card" data-title="Java Interview Prep: CompletableFuture and Asynchronous Programming Pipelines" data-concept="CompletableFuture and Asynchronous Programming Pipelines" data-category="all">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <div class="badge-row">
+                <span class="badge">Issue #44</span>
+                
+            </div>
+            <h2 class="card-title">Java Interview Prep: CompletableFuture and Asynchronous Programming Pipelines</h2>
+            <span class="card-meta">Published on 2026-09-12 08:45:14 • Topic: CompletableFuture and Asynchronous Programming Pipelines</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+                    <p><strong>Concept Deep-Dive:</strong> CompletableFuture and Asynchronous Programming Pipelines</p>
+            <p>Understanding the internal mechanisms, thread-safety guarantees, and memory layout of <em>CompletableFuture and Asynchronous Programming Pipelines</em> is essential for senior technical interviews.</p>
+            <pre><code class="language-java">// Production Best Practice snippet for CompletableFuture and Asynchronous Programming Pipelines
+public final class ConceptDemo {
+    public static void execute() {
+        System.out.println("Demonstrating best practice mechanics for: " + "CompletableFuture and Asynchronous Programming Pipelines");
+    }
+}
+</code></pre>
+            <p><strong>Key takeaway:</strong> Always analyze memory overhead, synchronization boundaries, and garbage collection implications when applying this concept in production.</p>
+
+    </div>
+</div>
+<div class="tip-card" data-title="Java Interview Prep: Java Streams: Intermediate vs Terminal Operations (lazy evaluation and short-circuiting)" data-concept="Java Streams: Intermediate vs Terminal Operations (lazy evaluation and short-circuiting)" data-category="all">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <div class="badge-row">
+                <span class="badge">Issue #43</span>
+                
+            </div>
+            <h2 class="card-title">Java Interview Prep: Java Streams: Intermediate vs Terminal Operations (lazy evaluation and short-circuiting)</h2>
+            <span class="card-meta">Published on 2026-09-11 09:01:55 • Topic: Java Streams: Intermediate vs Terminal Operations (lazy evaluation and short-circuiting)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+                    <p><strong>Concept Deep-Dive:</strong> Java Streams: Intermediate vs Terminal Operations (lazy evaluation and short-circuiting)</p>
+            <p>Understanding the internal mechanisms, thread-safety guarantees, and memory layout of <em>Java Streams: Intermediate vs Terminal Operations (lazy evaluation and short-circuiting)</em> is essential for senior technical interviews.</p>
+            <pre><code class="language-java">// Production Best Practice snippet for Java Streams: Intermediate vs Terminal Operations (lazy evaluation and short-circuiting)
+public final class ConceptDemo {
+    public static void execute() {
+        System.out.println("Demonstrating best practice mechanics for: " + "Java Streams: Intermediate vs Terminal Operations (lazy evaluation and short-circuiting)");
+    }
+}
+</code></pre>
+            <p><strong>Key takeaway:</strong> Always analyze memory overhead, synchronization boundaries, and garbage collection implications when applying this concept in production.</p>
+
+    </div>
+</div>
+<div class="tip-card" data-title="Virtual Threads (Project Loom) in Java 21" data-concept="Virtual Threads (Project Loom, how they differ from Platform Threads)" data-category="all">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <div class="badge-row">
+                <span class="badge">Issue #42</span>
+                
+            </div>
+            <h2 class="card-title">Virtual Threads (Project Loom) in Java 21</h2>
+            <span class="card-meta">Published on 2026-09-10 09:04:13 • Topic: Virtual Threads (Project Loom, how they differ from Platform Threads)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+                    <p><strong>Overview:</strong> Traditional OS platform threads are expensive (~1MB stack per thread). Virtual threads (Java 21) decouple Java threads from OS threads, allowing millions of concurrent tasks to execute simultaneously.</p>
+            <p><strong>Key Gotchas:</strong> Avoid pinning virtual threads to platform carrier threads by replacing <code>synchronized</code> blocks with <code>ReentrantLock</code> during blocking I/O calls.</p>
+            <pre><code class="language-java">try (var executor = java.util.concurrent.Executors.newVirtualThreadPerTaskExecutor()) {
+    for (int i = 0; i < 100_000; i++) {
+        final int taskId = i;
+        executor.submit(() -> {
+            // High throughput blocking network call
+            java.util.concurrent.TimeUnit.MILLISECONDS.sleep(100);
+            return taskId;
+        });
+    }
+} // AutoCloseable executor awaits completion
+</code></pre>
+
+    </div>
+</div>
+<div class="tip-card" data-title="Java Garbage Collectors: G1 vs ZGC Differences and Use Cases" data-concept="Java Garbage Collectors (G1 vs ZGC differences and use cases)" data-category="all">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <div class="badge-row">
+                <span class="badge">Issue #41</span>
+                
+            </div>
+            <h2 class="card-title">Java Garbage Collectors: G1 vs ZGC Differences and Use Cases</h2>
+            <span class="card-meta">Published on 2026-09-09 09:05:20 • Topic: Java Garbage Collectors (G1 vs ZGC differences and use cases)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+                    <p><strong>Overview:</strong> The JVM provides specialized garbage collectors tailored to different latency and throughput requirements. G1 (Garbage-First) is the default collector since Java 9, while ZGC (Z Garbage Collector) is a low-latency collector introduced in Java 15+.</p>
+            <p><strong>Core Mechanics:</strong></p>
+            <ul>
+              <li><strong>G1 GC:</strong> Divides the heap into equal-sized regions (1MB to 32MB). It uses concurrent marking and incremental compaction targeting a configurable pause goal (<code>-XX:MaxGCPauseMillis</code>).</li>
+              <li><strong>ZGC:</strong> Employs colored pointers and load barriers to perform nearly all GC phases concurrently with application threads, achieving sub-millisecond pause times regardless of heap size.</li>
+            </ul>
+            <pre><code class="language-java">// Example JVM flags for selecting Garbage Collectors
+// Enable G1 GC (Default in JDK 9+):
+// java -XX:+UseG1GC -XX:MaxGCPauseMillis=200 -jar app.jar
+
+// Enable ZGC (JDK 15+):
+// java -XX:+UseZGC -XX:+ZGenerational -jar app.jar
+</code></pre>
+            <p><strong>Interviewer Gotchas:</strong> ZGC trades slightly lower single-thread throughput for ultra-low pause latency. If throughput is the primary metric over pause latency, G1 or Parallel GC may be preferable.</p>
+
     </div>
 </div>
 
