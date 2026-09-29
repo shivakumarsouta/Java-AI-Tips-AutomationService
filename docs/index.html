@@ -336,11 +336,51 @@
         </div>
 
         <div id="tipsList">
-            <div class="tip-card" data-title="Java Technical Deep-Dive: ConcurrentHashMap Internal Mechanics (CAS operations, synchronized bucket locking, tree bins, and resizing)" data-concept="[Interview Core] ConcurrentHashMap Internal Mechanics (CAS operations, synchronized bucket locking, tree bins, and resizing)" data-category="interview">
+            <div class="tip-card" data-title="Java Garbage Collectors: G1 vs ZGC Differences and Use Cases" data-concept="[Interview Core] Java Garbage Collectors (G1 vs ZGC differences, generational ZGC, pause targets, and memory region layouts)" data-category="interview">
     <div class="card-header" onclick="toggleCard(this)">
         <div>
             <div class="badge-row">
                 <span class="badge badge-latest">★ Latest Issue</span>
+                <span class="pill pill-interview">Interview Core</span>
+            </div>
+            <h2 class="card-title">Java Garbage Collectors: G1 vs ZGC Differences and Use Cases</h2>
+            <span class="card-meta">Published on 2026-09-29 10:50:41 • Topic: Java Garbage Collectors (G1 vs ZGC differences, generational ZGC, pause targets, and memory region layouts)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+                    <h3>1. Core Mechanics & Internal Architecture</h3>
+            <p>The JVM provides specialized garbage collectors tailored to different latency and throughput requirements. G1 (Garbage-First) is the default collector in JDK 9+, while ZGC (Z Garbage Collector) is an ultra-low latency collector introduced in JDK 15+ and made generational in JDK 21.</p>
+            <ul>
+              <li><strong>G1 GC:</strong> Divides the heap into equal-sized regions (1MB to 32MB). It tracks region liveness via Remembered Sets (RSets) and performs incremental compaction during mixed GC phases targeting a configurable pause goal (<code>-XX:MaxGCPauseMillis=200</code>).</li>
+              <li><strong>ZGC:</strong> Employs 42-bit colored pointers and read/load barriers to perform marking, relocation, and remapping concurrently with application threads, achieving sub-millisecond pause times regardless of heap size (up to 16TB).</li>
+            </ul>
+
+            <h3>2. Production-Grade Java Implementation</h3>
+            <p>Selecting and tuning garbage collectors in enterprise production environments is accomplished via JVM flags:</p>
+            <pre><code class="language-java">// JVM Tuning Flags for Production Deployments
+
+// 1. Production G1 GC Config (Default for balance of throughput & pause targets):
+// java -XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:InitiatingHeapOccupancyPercent=45 -jar app.jar
+
+// 2. Production Generational ZGC Config (JDK 21+ for ultra-low latency microservices):
+// java -XX:+UseZGC -XX:+ZGenerational -Xms16g -Xmx16g -jar app.jar
+</code></pre>
+
+            <h3>3. Performance, Memory & JVM Tuning Gotchas</h3>
+            <p>ZGC trades slightly lower single-threaded throughput (~3-5% CPU overhead due to load barriers) for ultra-low latency. If raw batch throughput is the primary metric over pause latency, G1 or Parallel GC is preferable. Always set initial heap (<code>-Xms</code>) equal to max heap (<code>-Xmx</code>) in production to avoid dynamic heap expansion overhead.</p>
+
+            <h3>4. Top Interviewer Trap Questions & Deep Answers</h3>
+            <p><strong>Q: Why does ZGC require load barriers instead of write barriers?</strong><br>
+            <em>Answer:</em> Write barriers trigger when reference fields are modified. ZGC performs object relocation concurrently while application threads read references. Load barriers intercept reference loads from the heap, check the colored pointer bits, and dynamically self-heal the reference to point to the relocated memory address on the fly without stopping application threads.</p>
+
+    </div>
+</div>
+<div class="tip-card" data-title="Java Technical Deep-Dive: ConcurrentHashMap Internal Mechanics (CAS operations, synchronized bucket locking, tree bins, and resizing)" data-concept="[Interview Core] ConcurrentHashMap Internal Mechanics (CAS operations, synchronized bucket locking, tree bins, and resizing)" data-category="interview">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <div class="badge-row">
+                <span class="badge">Issue #61</span>
                 <span class="pill pill-interview">Interview Core</span>
             </div>
             <h2 class="card-title">Java Technical Deep-Dive: ConcurrentHashMap Internal Mechanics (CAS operations, synchronized bucket locking, tree bins, and resizing)</h2>
