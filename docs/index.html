@@ -336,11 +336,59 @@
         </div>
 
         <div id="tipsList">
-            <div class="tip-card" data-title="Java Garbage Collectors: G1 vs ZGC Differences and Use Cases" data-concept="[Interview Core] Java Garbage Collectors (G1 vs ZGC differences, generational ZGC, pause targets, and memory region layouts)" data-category="interview">
+            <div class="tip-card" data-title="Virtual Threads (Project Loom) in Java 21" data-concept="[Interview Core] Virtual Threads (Project Loom, carrier thread pinning, synchronized block pitfalls, and ReentrantLock replacement)" data-category="interview">
     <div class="card-header" onclick="toggleCard(this)">
         <div>
             <div class="badge-row">
                 <span class="badge badge-latest">★ Latest Issue</span>
+                <span class="pill pill-interview">Interview Core</span>
+            </div>
+            <h2 class="card-title">Virtual Threads (Project Loom) in Java 21</h2>
+            <span class="card-meta">Published on 2026-09-30 10:39:42 • Topic: Virtual Threads (Project Loom, carrier thread pinning, synchronized block pitfalls, and ReentrantLock replacement)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+                    <h3>1. Core Mechanics & Internal Architecture</h3>
+            <p>Traditional OS platform threads carry a heavy memory footprint (~1MB thread stack reserved by the OS kernel) and context switching overhead. Virtual threads (Java 21) are instances of <code>java.lang.Thread</code> managed by the JVM inside user space.</p>
+            <p>When a virtual thread executes a blocking I/O operation (e.g. database query, socket read), the JVM unmounts the virtual thread stack from its underlying OS carrier thread (ForkJoinPool worker) and parks it. The carrier thread immediately picks up another runnable virtual thread.</p>
+
+            <h3>2. Production-Grade Java Implementation</h3>
+            <p>Modern high-throughput executor pattern using virtual thread per task:</p>
+            <pre><code class="language-java">import java.util.concurrent.Executors;
+import java.time.Duration;
+
+public class HighThroughputService {
+    public void processTaskBatch() {
+        // Create an auto-closeable executor that spawns a new virtual thread per task
+        try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            for (int i = 0; i < 50_000; i++) {
+                final int taskId = i;
+                executor.submit(() -> {
+                    // Simulating blocking network / DB call
+                    Thread.sleep(Duration.ofMillis(100));
+                    return "Task " + taskId + " completed";
+                });
+            }
+        } // AutoCloseable awaitTermination guarantees all 50k virtual threads complete before continuing
+    }
+}
+</code></pre>
+
+            <h3>3. Performance, Memory & JVM Tuning Gotchas</h3>
+            <p><strong>Carrier Thread Pinning Pitfall:</strong> If a virtual thread executes a blocking call inside a <code>synchronized</code> block or native method, it gets <em>pinned</em> to its carrier thread, preventing the carrier from serving other tasks. Solution: Replace <code>synchronized</code> blocks with <code>ReentrantLock</code> in I/O-intensive code paths.</p>
+
+            <h3>4. Top Interviewer Trap Questions & Deep Answers</h3>
+            <p><strong>Q: Should you pool Virtual Threads using ThreadPoolExecutor?</strong><br>
+            <em>Answer:</em> <strong>No, absolute anti-pattern!</strong> Virtual threads are designed to be cheap (~ several hundred bytes initial footprint) and short-lived. Never pool them. Create them dynamically per task using <code>Executors.newVirtualThreadPerTaskExecutor()</code> or <code>Thread.ofVirtual().start()</code>. Use Semaphore if you need to limit access to a downstream resource.</p>
+
+    </div>
+</div>
+<div class="tip-card" data-title="Java Garbage Collectors: G1 vs ZGC Differences and Use Cases" data-concept="[Interview Core] Java Garbage Collectors (G1 vs ZGC differences, generational ZGC, pause targets, and memory region layouts)" data-category="interview">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <div class="badge-row">
+                <span class="badge">Issue #62</span>
                 <span class="pill pill-interview">Interview Core</span>
             </div>
             <h2 class="card-title">Java Garbage Collectors: G1 vs ZGC Differences and Use Cases</h2>
