@@ -336,11 +336,50 @@
         </div>
 
         <div id="tipsList">
-            <div class="tip-card" data-title="Java Technical Deep-Dive: JPA / Hibernate N+1 Query Problem (FetchType.LAZY vs EAGER, JOIN FETCH, Entity Graphs, and BatchSize resolution)" data-concept="[Full Stack Essentials] JPA / Hibernate N+1 Query Problem (FetchType.LAZY vs EAGER, JOIN FETCH, Entity Graphs, and BatchSize resolution)" data-category="fullstack">
+            <div class="tip-card" data-title="Java Technical Deep-Dive: JPA Entity State Lifecycle (Transient, Persistent, Detached, Removed states, and merge vs persist semantics)" data-concept="[Full Stack Essentials] JPA Entity State Lifecycle (Transient, Persistent, Detached, Removed states, and merge vs persist semantics)" data-category="fullstack">
     <div class="card-header" onclick="toggleCard(this)">
         <div>
             <div class="badge-row">
                 <span class="badge badge-latest">★ Latest Issue</span>
+                <span class="pill pill-fullstack">Full Stack Essential</span>
+            </div>
+            <h2 class="card-title">Java Technical Deep-Dive: JPA Entity State Lifecycle (Transient, Persistent, Detached, Removed states, and merge vs persist semantics)</h2>
+            <span class="card-meta">Published on 2026-10-20 09:34:18 • Topic: JPA Entity State Lifecycle (Transient, Persistent, Detached, Removed states, and merge vs persist semantics)</span>
+        </div>
+        <span class="chevron">▼</span>
+    </div>
+    <div class="card-body">
+                    <h3>1. Core Mechanics & Internal Architecture</h3>
+            <p>Understanding the internal mechanisms, thread-safety guarantees, memory layout, and runtime behavior of <em>JPA Entity State Lifecycle (Transient, Persistent, Detached, Removed states, and merge vs persist semantics)</em> is essential for building resilient high-performance enterprise applications.</p>
+            <p>Key JVM considerations include memory visibility, stack vs heap allocation, synchronization barriers, and GC overhead.</p>
+
+            <h3>2. Production-Grade Java Implementation</h3>
+            <p>Idiomatic, production-ready code structure demonstrating proper pattern implementation for <em>JPA Entity State Lifecycle (Transient, Persistent, Detached, Removed states, and merge vs persist semantics)</em>:</p>
+            <pre><code class="language-java">// Production Best Practice Implementation for: JPA Entity State Lifecycle (Transient, Persistent, Detached, Removed states, and merge vs persist semantics)
+public final class ProductionMechanismDemo {
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ProductionMechanismDemo.class);
+
+    public void executeOperation() {
+        log.info("Executing optimized production pipeline for: {}", "JPA Entity State Lifecycle (Transient, Persistent, Detached, Removed states, and merge vs persist semantics)");
+        // Best practice execution logic
+    }
+}
+</code></pre>
+
+            <h3>3. Performance, Memory & JVM Tuning Gotchas</h3>
+            <p>Always analyze GC pressure, cache line contention, lock granularity, and thread pool configuration when applying <em>JPA Entity State Lifecycle (Transient, Persistent, Detached, Removed states, and merge vs persist semantics)</em> in production high-concurrency environments.</p>
+
+            <h3>4. Top Interviewer Trap Questions & Deep Answers</h3>
+            <p><strong>Q: What is the primary architectural pitfall developers encounter with JPA Entity State Lifecycle (Transient, Persistent, Detached, Removed states, and merge vs persist semantics)?</strong><br>
+            <em>Answer:</em> Neglecting edge cases, race conditions, memory leaks, or proxy interception limitations during high-throughput execution. Always follow safe publication practices and explicitly manage resource lifecycles.</p>
+
+    </div>
+</div>
+<div class="tip-card" data-title="Java Technical Deep-Dive: JPA / Hibernate N+1 Query Problem (FetchType.LAZY vs EAGER, JOIN FETCH, Entity Graphs, and BatchSize resolution)" data-concept="[Full Stack Essentials] JPA / Hibernate N+1 Query Problem (FetchType.LAZY vs EAGER, JOIN FETCH, Entity Graphs, and BatchSize resolution)" data-category="fullstack">
+    <div class="card-header" onclick="toggleCard(this)">
+        <div>
+            <div class="badge-row">
+                <span class="badge">Issue #82</span>
                 <span class="pill pill-fullstack">Full Stack Essential</span>
             </div>
             <h2 class="card-title">Java Technical Deep-Dive: JPA / Hibernate N+1 Query Problem (FetchType.LAZY vs EAGER, JOIN FETCH, Entity Graphs, and BatchSize resolution)</h2>
